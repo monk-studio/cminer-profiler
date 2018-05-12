@@ -4,7 +4,7 @@ import pygsheets
 
 from settings import SHEET_URL
 from ._logger import logger
-from .models import Mine, Food, Recipe
+from .models import Mine, Food, Recipe, Tool
 
 DROP_PROB_FACTORS = [1, 0.8, 0.6, 0.4, 0.2, 0.05, 0.01]
 
@@ -29,13 +29,14 @@ def run():
     for idx, row in enumerate(mine_data.range('A2:V20')):
         name = row[0].value
         uid = name_id_map[name]
-        probs = [x.value if x else None for x in row[1:14]]
-        drop_probs = [x.value for x in row[14: 21]]
+        hardness = row[1].value
+        probs = [x.value if x else None for x in row[9:22]]
+        drop_probs = [x.value for x in row[2: 9]]
         item_drop_probs = list()
         for (prob, group) in zip(DROP_PROB_FACTORS, drop_probs):
             items = retrieve_items(name_id_map, group)
             item_drop_probs += [(x[0], x[1], prob) for x in items]
-        mine = Mine(uid, name, probs, item_drop_probs,
+        mine = Mine(uid, hardness, probs, item_drop_probs,
                     hp_base_list[idx], coin_factor)
         mines.append(mine)
 
@@ -43,8 +44,19 @@ def run():
     inouts = [(x[0].value, x[1].value) for x in recipe_data if x[0].value]
     recipes = [Recipe(retrieve_items(name_id_map, x[0]),
                       retrieve_items(name_id_map, x[1])) for x in inouts]
-    for recipe in recipes:
-        logger.info(recipe)
+
+    tool_data = sheet.worksheet_by_title('道具').range('A2:H100')
+    tool_data = [x for x in tool_data if x[0].value]
+    tools = list()
+    for row in tool_data:
+        uid = name_id_map[row[0].value]
+        type_ = int(row[1].value)
+        hardness = int(row[4].value) if row[4].value else None
+        endurance = int(row[5].value) if row[5].value else None
+        base_damage = int(row[6].value) if row[6].value else None
+        tool = Tool(uid, type_, hardness, endurance, base_damage)
+        tools.append(tool)
+    print(tools)
 
 
 def retrieve_items(ids, text):
