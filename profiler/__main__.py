@@ -6,9 +6,10 @@ def cli():
     pass
 
 
-@cli.command(help='hello world')
-def hello():
-    print('hello')
+@cli.command()
+def sync():
+    from . import sync
+    sync.run()
 
 
 if __name__ == '__main__':

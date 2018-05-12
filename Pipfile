@@ -8,6 +8,8 @@ name = "pypi"
 [packages]
 
 click = "*"
+python-dotenv = "*"
+pygsheets = "*"
 
 
 [dev-packages]
