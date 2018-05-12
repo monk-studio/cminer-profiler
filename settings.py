@@ -5,4 +5,5 @@ from dotenv import load_dotenv
 
 load_dotenv(Path('.') / '.env')
 
-SHEET_ID = os.getenv('SHEET_ID')
+LOG_LEVEL = os.getenv('LOG_LEVEL')
+SHEET_URL = os.getenv('SHEET_URL')
