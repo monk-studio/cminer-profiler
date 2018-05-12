@@ -12,5 +12,11 @@ def sync():
     sync.run()
 
 
+@cli.command()
+def run():
+    from . import run
+    run()
+
+
 if __name__ == '__main__':
     cli()
