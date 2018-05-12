@@ -4,8 +4,20 @@ from collections import namedtuple
 from .consts import COIN
 
 
-Food = namedtuple('Level', ['name', 'effect'])
+Food = namedtuple('Level', ['name', 'hp'])
 Material = namedtuple('Material', ['sdf'])
+
+
+class Recipe(object):
+    inputs = None
+    outputs = None
+
+    def __init__(self, inputs, outputs):
+        self.inputs = inputs
+        self.outputs = outputs
+
+    def __repr__(self):
+        return repr(self.inputs) + ': ' + repr(self.outputs)
 
 
 class Mine(object):
