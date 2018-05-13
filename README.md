@@ -1,9 +1,9 @@
 # Click Miner Profiler
 
 
-## Run profiler CLI
+## Run CMiner CLI
 
 ```shell
 $ pipenv install
-$ pipenv run python -m profiler
+$ pipenv run python -m cminer
 ```

@@ -21,7 +21,7 @@ def run():
                         for x in id_data if x[0].value])
     i18n = dict([(x[0].value, x[1].value)
                  for x in id_data if x[0].value])
-    save(i18n, SOURCE_I18N)
+    _save(i18n, SOURCE_I18N)
     logger.info(f'Synced {len(i18n)} nouns')
 
     mine_data = sheet.worksheet_by_title('矿山')
@@ -38,20 +38,20 @@ def run():
         drop_probs = [x.value for x in row[2: 9]]
         item_drop_probs = list()
         for (prob, group) in zip(DROP_PROB_FACTORS, drop_probs):
-            items = retrieve_items(name_id_map, group)
+            items = _retrieve_items(name_id_map, group)
             item_drop_probs += [(x[0], x[1], prob) for x in items]
         mine = Mine(uid, hardness, probs, item_drop_probs,
                     hp_base_list[idx], coin_factor)
         mines.append(mine)
     mines = dict([(x.uid, x) for x in mines])
-    save(mines, SOURCE_MINES)
+    _save(mines, SOURCE_MINES)
     logger.info(f'Synced {len(mines)} mines')
 
     recipe_data = sheet.worksheet_by_title('合成配方').range('A2:B200')
     inouts = [(x[0].value, x[1].value) for x in recipe_data if x[0].value]
-    recipes = [Recipe(retrieve_items(name_id_map, x[0]),
-                      retrieve_items(name_id_map, x[1])) for x in inouts]
-    save(recipes, SOURCE_RECIPES)
+    recipes = [Recipe(_retrieve_items(name_id_map, x[0]),
+                      _retrieve_items(name_id_map, x[1])) for x in inouts]
+    _save(recipes, SOURCE_RECIPES)
     logger.info(f'Synced {len(recipes)} recipes')
 
     tool_data = sheet.worksheet_by_title('道具').range('A2:H100')
@@ -66,11 +66,11 @@ def run():
         tool = Tool(uid, type_, hardness, endurance, base_damage)
         tools.append(tool)
     tools = dict([(x.uid, x) for x in tools])
-    save(tools, SOURCE_TOOLS)
+    _save(tools, SOURCE_TOOLS)
     logger.info(f'Synced {len(tools)} tools')
 
 
-def retrieve_items(ids, text):
+def _retrieve_items(ids, text):
     rv = list()
     match = re.compile(r'\d+(.*)')
     items = text.split(',')
@@ -85,11 +85,6 @@ def retrieve_items(ids, text):
     return rv
 
 
-def save(obj, filename):
+def _save(obj, filename):
     with open(filename, 'wb') as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
-
-
-def load(filename):
-    with open(filename, 'rb') as f:
-        return pickle.load(f)

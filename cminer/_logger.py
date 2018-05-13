@@ -3,7 +3,7 @@ from settings import LOG_LEVEL
 
 
 _format = '%(message)s'
-_name = 'profiler'
+_name = 'cminer'
 
 formatter = logging.Formatter(_format)
 

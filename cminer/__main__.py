@@ -14,8 +14,9 @@ def sync():
 
 @cli.command()
 def run():
-    from . import run
-    run()
+    from .core import Game
+    game = Game(None)
+    game.system.mine_at_level(23)
 
 
 if __name__ == '__main__':
