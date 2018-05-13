@@ -10,6 +10,7 @@ name = "pypi"
 click = "*"
 python-dotenv = "*"
 pygsheets = "*"
+aenum = "*"
 
 
 [dev-packages]

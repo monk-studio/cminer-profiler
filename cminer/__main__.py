@@ -22,17 +22,18 @@ def update():
     update.run()
 
 
-@cli.command()
+@cli.command(help='New game')
 def newgame():
     while True:
         archive = click.prompt('Name of your archive')
         if archive in Archive.list():
             click.echo('Archive already exist')
+            return
         break
     _game_start(archive)
 
 
-@cli.command()
+@cli.command(help='Resume game')
 @click.option('--archive', prompt=True, help='Name of your archive')
 def resume(archive):
     if archive not in Archive.list():
@@ -41,7 +42,7 @@ def resume(archive):
     _game_start(archive)
 
 
-@cli.command()
+@cli.command(help='Play the game automatically')
 def profile():
     pass
 

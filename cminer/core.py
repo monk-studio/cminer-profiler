@@ -1,10 +1,13 @@
 import pickle
-from enum import Enum
-from ._logger import logger
 from pathlib import Path
+
+from aenum import Enum, MultiValueEnum
+
+from ._logger import logger
 from .consts import (
     SOURCE_I18N, SOURCE_TOOLS, SOURCE_RECIPES, SOURCE_MINES
 )
+from .consts import TOOL_WOODEN_PICKAXE
 
 
 def _load(filename):
@@ -33,9 +36,11 @@ class Archive:
 
     def __init__(self, name):
         self.name = name
-        self.load()
-        if not self.location:
+        self.warehouse = dict()
+        self.bag = dict()
+        if not self.load():
             self.location = Location.camp
+            self.warehouse = {TOOL_WOODEN_PICKAXE: 10}
 
     @property
     def _path(self):
@@ -51,8 +56,9 @@ class Archive:
                 data = pickle.load(f)
                 for k, v in data.__dict__.items():
                     setattr(self, k, v)
+                return True
         except FileNotFoundError:
-            return
+            return False
 
     @staticmethod
     def list():
@@ -61,17 +67,24 @@ class Archive:
                 for f in Archive.root.glob('*.pkl')]
 
 
-class Action(Enum):
-    buy_wood = 1
-    make_pickaxe = 2
-    go_mining = 3
-    mine = 4
-    go_camp = 5
+class Action(MultiValueEnum):
+    buy_wood = 1, '买木头'
+    make_pickaxe = 2, '做稿子'
+    go_mining = 3, '去挖矿'
+    mine = 4, '往下挖'
+    go_camp = 5, '回到营地'
+    show_warehouse = 6, '显示背包'
 
 
 class Location(Enum):
     camp = 1
     mine = 2
+
+
+class MiningProgress:
+    def __init__(self, level=1, items=None):
+        self.level = level
+        self.items = items or dict()
 
 
 class Game:
@@ -80,25 +93,36 @@ class Game:
         self.archive = archive
 
     def echo(self):
-        logger.info(f'>> {self.archive.name}')
         if self.archive.location == Location.camp:
             cmds = [
-                Action.buy_wood, Action.make_pickaxe, Action.go_mining
+                Action.buy_wood, Action.make_pickaxe, Action.go_mining,
+                Action.show_warehouse
             ]
         else:
             cmds = [
                 Action.mine, Action.go_camp
             ]
-        cmds = '\n'.join([f'{x.value}: {x.name}' for x in cmds])
+        cmds_text = '\n'.join([f'{x.values[0]}: {x.values[1]}' for x in cmds])
         logger.info('Now you are in the camp, next move:')
-        logger.info(cmds)
+        logger.info(cmds_text)
+        return cmds
 
     def execute(self, cmd):
         action = Action(int(cmd))
-        logger.info(f'Decide to {action.name}')
+        if action == Action.show_warehouse:
+            # todo: interactive ui for bag.
+            items = [f'{self.system.i18n[k]}: {v}個'
+                     for k, v in self.archive.warehouse.items()]
+            items = '\n'.join(items)
+            logger.info('-------------------')
+            logger.info(items)
+            logger.info('-------------------')
+            return
         if action == Action.go_mining:
+            # todo: carry something in the bag
             self.archive.location = Location.mine
         if action == Action.go_camp:
+            # todo: put items into warehouse.
             self.archive.location = Location.camp
         self.archive.save()
         self.echo()

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f444e712c15d677b91ba6097ce1ba3c20f3085eb88d7a688fe7c42875ff782d3"
+            "sha256": "84cd7bb2796df4162c60e1bab5b6b4af5bd0660fc966d8b49907ad227d7f0167"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -27,6 +27,14 @@
         ]
     },
     "default": {
+        "aenum": {
+            "hashes": [
+                "sha256:7a77c205c4bc9d7fe9bd73b3193002d724aebf5909fa0d297534208953891ec8",
+                "sha256:3df9b84cce5dc9ed77c337079f97b66c44c0053eb87d6f4d46b888dc45801e38",
+                "sha256:a3208e4b28db3a7b232ff69b934aef2ea1bf27286d9978e1e597d46f490e4687"
+            ],
+            "version": "==2.1.2"
+        },
         "click": {
             "hashes": [
                 "sha256:29f99fc6125fbc931b758dc053b3114e55c77a6e4c6c3a2674a2dc986016381d",
