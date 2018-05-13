@@ -1,10 +1,13 @@
 import re
-
+import pickle
 import pygsheets
 
 from settings import SHEET_URL
 from ._logger import logger
-from .models import Mine, Food, Recipe, Tool
+from .models import Mine, Recipe, Tool
+from .consts import (
+    SOURCE_MINES, SOURCE_RECIPES, SOURCE_TOOLS, SOURCE_I18N
+)
 
 DROP_PROB_FACTORS = [1, 0.8, 0.6, 0.4, 0.2, 0.05, 0.01]
 
@@ -13,12 +16,13 @@ def run():
     gc = pygsheets.authorize()
     sheet = gc.open_by_url(SHEET_URL)
 
-    # ID, 矿山, 矿山血量&金币掉落, 食物, 道具, 人物,
     id_data = sheet.worksheet_by_title('ID').range('A2:B200')
     name_id_map = dict([(x[1].value, x[0].value)
                         for x in id_data if x[0].value])
-    # id_name_map = dict([(x[0].value, x[1].value)
-    #                     for x in id_data if x[0].value])
+    i18n = dict([(x[0].value, x[1].value)
+                 for x in id_data if x[0].value])
+    save(i18n, SOURCE_I18N)
+    logger.info(f'Synced {len(i18n)} nouns')
 
     mine_data = sheet.worksheet_by_title('矿山')
     mines_data2 = sheet.worksheet_by_title('矿山血量&金币掉落')
@@ -39,11 +43,16 @@ def run():
         mine = Mine(uid, hardness, probs, item_drop_probs,
                     hp_base_list[idx], coin_factor)
         mines.append(mine)
+    mines = dict([(x.uid, x) for x in mines])
+    save(mines, SOURCE_MINES)
+    logger.info(f'Synced {len(mines)} mines')
 
     recipe_data = sheet.worksheet_by_title('合成配方').range('A2:B200')
     inouts = [(x[0].value, x[1].value) for x in recipe_data if x[0].value]
     recipes = [Recipe(retrieve_items(name_id_map, x[0]),
                       retrieve_items(name_id_map, x[1])) for x in inouts]
+    save(recipes, SOURCE_RECIPES)
+    logger.info(f'Synced {len(recipes)} recipes')
 
     tool_data = sheet.worksheet_by_title('道具').range('A2:H100')
     tool_data = [x for x in tool_data if x[0].value]
@@ -56,7 +65,9 @@ def run():
         base_damage = int(row[6].value) if row[6].value else None
         tool = Tool(uid, type_, hardness, endurance, base_damage)
         tools.append(tool)
-    print(tools)
+    tools = dict([(x.uid, x) for x in tools])
+    save(tools, SOURCE_TOOLS)
+    logger.info(f'Synced {len(tools)} tools')
 
 
 def retrieve_items(ids, text):
@@ -72,3 +83,13 @@ def retrieve_items(ids, text):
         amount = int(item.rstrip(name))
         rv.append((uid, amount))
     return rv
+
+
+def save(obj, filename):
+    with open(filename, 'wb') as f:
+        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+
+
+def load(filename):
+    with open(filename, 'rb') as f:
+        return pickle.load(f)

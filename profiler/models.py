@@ -13,12 +13,6 @@ class Tool:
     TYPE_BOMB = 1
     TYPE_OTHERS = 9
 
-    uid = None
-    type = None
-    hardness = None
-    endurance = None
-    base_damage = None
-
     def __init__(self, uid, type_, hardness, endurance, base_damage):
         self.uid = uid
         self.type = type_
@@ -28,28 +22,26 @@ class Tool:
 
     def damage_on_hardness(self, hardness):
         offset = hardness - self.hardness
+        rv = self.base_damage
         if offset == 1:
-            return self.base_damage * 0.7
-        if offset >= 2:
-            return self.base_damage * 0.4
-        if offset == -1:
-            return self.base_damage * 1.2
-        if offset <= -2:
-            return self.base_damage * 1.5
-        return self.base_damage
+            rv *= 0.7
+        elif offset >= 2:
+            rv *= 0.4
+        elif offset == -1:
+            rv *= 1.2
+        elif offset <= -2:
+            rv *= 1.5
+        return int(rv)
 
     def __repr__(self):
         return self.uid
 
 
 class Recipe:
-    # [('MATERIAL_STONE', 3), ('MATERIAL_WOOD', 1)]
-    inputs = None
-    # [('TOOL_STONE_PICKAXE', 1)]
-    outputs = None
-
     def __init__(self, inputs, outputs):
+        # [('MATERIAL_STONE', 3), ('MATERIAL_WOOD', 1)]
         self.inputs = inputs
+        # [('TOOL_STONE_PICKAXE', 1)]
         self.outputs = outputs
 
     def __repr__(self):
@@ -57,19 +49,12 @@ class Recipe:
 
 
 class Mine:
-    uid = None
-    hardness = None
-    probs = None
-    # [(MATERIAL_IRON, 2, 0.4), ...], <= [(id, num, prob)]
-    item_drop_probs = None
-    hp_base = None
-    coin_factor = None
-
     def __init__(self, uid, probs, item_drop_probs, hardness,
                  hp_base, coin_factor):
         self.uid = uid
         self.hardness = hardness
         self.probs = probs
+        # [(MATERIAL_IRON, 2, 0.4), ...], <= [(id, num, prob)]
         self.item_drop_probs = item_drop_probs
         self.hp_base = hp_base
         self.coin_factor = coin_factor
@@ -105,3 +90,8 @@ class Mine:
 
     def __repr__(self):
         return self.uid
+
+    def to_dict(self):
+        return dict(
+            uid=self.uid,
+        )
