@@ -3,6 +3,14 @@ from ._logger import logger
 from .core import Game, Archive
 
 
+def _game_start(archive_name):
+    game = Game(archive=Archive(archive_name))
+    game.echo()
+    while True:
+        cmd = click.prompt('Your next move')
+        game.execute(cmd)
+
+
 @click.group()
 def cli():
     pass
@@ -17,15 +25,11 @@ def update():
 @cli.command()
 def newgame():
     while True:
-        name = click.prompt('Name of your archive')
-        if name in Archive.list():
+        archive = click.prompt('Name of your archive')
+        if archive in Archive.list():
             click.echo('Archive already exist')
         break
-    archive = Archive(name)
-    game = Game(archive=archive)
-    while True:
-        cmd = click.prompt('Your next action')
-        game.execute(cmd)
+    _game_start(archive)
 
 
 @cli.command()
@@ -34,10 +38,7 @@ def resume(archive):
     if archive not in Archive.list():
         logger.info('Archive not exist')
         return
-    game = Game(archive=archive)
-    while True:
-        cmd = click.prompt('Your next action')
-        game.execute(cmd)
+    _game_start(archive)
 
 
 @cli.command()
