@@ -5,5 +5,5 @@
 
 ```shell
 $ pipenv install
-$ pipenv run python -m cminer
+$ pipenv run python -m update
 ```

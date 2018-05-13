@@ -1,4 +1,6 @@
 import pickle
+import os
+from pathlib import Path
 from .consts import (
     SOURCE_I18N, SOURCE_TOOLS, SOURCE_RECIPES, SOURCE_MINES
 )
@@ -17,17 +19,32 @@ class System:
         self.recipes = _load(SOURCE_RECIPES)
 
     def mine_at_level(self, level):
-        mine_list = list(self.mines.values())
-        print(mine_list)
+        pass
+        # mine_list = list(self.mines.values())
 
     def compose(self, materials):
         pass
 
 
 class Archive:
-    # todo: connect to pkl.
-    def __init__(self):
-        pass
+    root = Path.home() / '.cminer/archives'
+
+    def __init__(self, name):
+        self.name = name
+
+    @property
+    def _path(self):
+        return Archive.root / (self.name + '.pkl')
+
+    def save(self):
+        with open(self._path, 'wb') as f:
+            pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
+
+    @staticmethod
+    def list():
+        Archive.root.mkdir(parents=True, exist_ok=True)
+        return [Path(f).name.split('.')[0]
+                for f in Archive.root.glob('*.pkl')]
 
 
 class Game:
@@ -35,5 +52,6 @@ class Game:
         self.system = System()
         self.archive = archive
 
-    def start(self):
-        pass
+    def execute(self, cmd):
+        print('executing {}'.format(cmd))
+        self.archive.save()

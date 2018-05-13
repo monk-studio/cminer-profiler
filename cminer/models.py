@@ -90,8 +90,3 @@ class Mine:
 
     def __repr__(self):
         return self.uid
-
-    def to_dict(self):
-        return dict(
-            uid=self.uid,
-        )
