@@ -49,7 +49,7 @@ class Recipe:
 
 
 class Mine:
-    def __init__(self, uid, probs, item_drop_probs, hardness,
+    def __init__(self, uid, hardness, probs, item_drop_probs,
                  hp_base, coin_factor):
         self.uid = uid
         self.hardness = hardness
@@ -61,18 +61,18 @@ class Mine:
 
     def prob_at_level(self, level):
         pos = math.floor(level / 100)
-        return self.probs[min(pos, len(self.coin_factor) - 1)]
+        return self.probs[min(pos, len(self.coin_factor) - 1)] or 0
 
     def hp_at_level(self, level):
         return 1.05 ** (level / 10) * self.hp_base
 
-    def coin_at_level(self, level):
+    def _coin_at_level(self, level):
         pos = math.floor(level / 100)
         factor = self.coin_factor[min(pos, len(self.coin_factor) - 1)]
         rv = factor * self.hp_at_level(level)
         return int(rv)
 
-    def drops_at_level(self, level):
+    def award_at_level(self, level):
         rv = dict()
         for item in self.item_drop_probs:
             if random.random() > item[2]:
@@ -81,7 +81,7 @@ class Mine:
                 rv[item[0]] += item[1]
             else:
                 rv[item[0]] = item[1]
-        coins = self.coin_at_level(level=level)
+        coins = self._coin_at_level(level=level)
         # 40% probability drop 10% more coin
         if random.random() < 0.4:
             coins = int(coins * 1.1)

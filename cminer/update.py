@@ -33,8 +33,8 @@ def run():
     for idx, row in enumerate(mine_data.range('A2:V20')):
         name = row[0].value
         uid = name_id_map[name]
-        hardness = row[1].value
-        probs = [x.value if x else None for x in row[9:22]]
+        hardness = int(row[1].value)
+        probs = [int(x.value) / 100 if x.value else None for x in row[9:22]]
         drop_probs = [x.value for x in row[2: 9]]
         item_drop_probs = list()
         for (prob, group) in zip(DROP_PROB_FACTORS, drop_probs):
