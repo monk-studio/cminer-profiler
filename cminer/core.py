@@ -33,11 +33,11 @@ class System:
 class Archive:
     root = Path.home() / '.cminer/archives'
     location = None
+    warehouse = dict()
+    bag = dict()
 
     def __init__(self, name):
         self.name = name
-        self.warehouse = dict()
-        self.bag = dict()
         if not self.load():
             self.location = Location.camp
             self.warehouse = {TOOL_WOODEN_PICKAXE: 10}
@@ -95,20 +95,19 @@ class Game:
     def echo(self):
         if self.archive.location == Location.camp:
             cmds = [
+                Action.show_warehouse,
                 Action.buy_wood, Action.make_pickaxe, Action.go_mining,
-                Action.show_warehouse
             ]
         else:
             cmds = [
                 Action.mine, Action.go_camp
             ]
-        cmds_text = '\n'.join([f'{x.values[0]}: {x.values[1]}' for x in cmds])
-        logger.info('Now you are in the camp, next move:')
+        cmds = [(idx, x) for idx, x in enumerate(cmds)]
+        cmds_text = '\n'.join([f'{idx}: {x.values[1]}' for idx, x in cmds])
         logger.info(cmds_text)
-        return cmds
+        return dict(cmds)
 
-    def execute(self, cmd):
-        action = Action(int(cmd))
+    def execute(self, action):
         if action == Action.show_warehouse:
             # todo: interactive ui for bag.
             items = [f'{self.system.i18n[k]}: {v}個'
@@ -124,5 +123,7 @@ class Game:
         if action == Action.go_camp:
             # todo: put items into warehouse.
             self.archive.location = Location.camp
+        if action == Action.mine:
+            # todo: use best axe to mine to next level
+            pass
         self.archive.save()
-        self.echo()

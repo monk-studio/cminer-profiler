@@ -5,9 +5,19 @@ from .core import Game, Archive
 
 def _game_start(archive_name):
     game = Game(archive=Archive(archive_name))
-    game.echo()
     while True:
-        cmd = click.prompt('Your next move')
+        cmds = game.echo()
+        while True:
+            cmd_idx = click.prompt('Your next move')
+            try:
+                cmd = cmds.get(int(cmd_idx))
+            except ValueError:
+                click.echo('Command invalid')
+                continue
+            if not cmd:
+                click.echo('Command not exist')
+            else:
+                break
         game.execute(cmd)
 
 
