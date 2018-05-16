@@ -16,18 +16,10 @@ def _load(filename):
 
 
 class System:
-    def __init__(self):
-        self.i18n = _load(SOURCE_I18N)
-        self.mines = _load(SOURCE_MINES)
-        self.tools = _load(SOURCE_TOOLS)
-        self.recipes = _load(SOURCE_RECIPES)
-
-    def mine_at_level(self, level):
-        pass
-        # mine_list = list(self.mines.values())
-
-    def compose(self, materials):
-        pass
+    i18n = _load(SOURCE_I18N)
+    mines = _load(SOURCE_MINES)
+    tools = _load(SOURCE_TOOLS)
+    recipes = _load(SOURCE_RECIPES)
 
 
 class Archive:
@@ -40,7 +32,7 @@ class Archive:
         self.name = name
         if not self.load():
             self.location = Location.camp
-            self.warehouse = {TOOL_WOODEN_PICKAXE: 10}
+            self.warehouse = {System.tools[TOOL_WOODEN_PICKAXE]: 10}
 
     @property
     def _path(self):
@@ -73,7 +65,8 @@ class Action(MultiValueEnum):
     go_mining = 3, '去挖矿'
     mine = 4, '往下挖'
     go_camp = 5, '回到营地'
-    show_warehouse = 6, '显示背包'
+    show_warehouse = 6, '显示仓库'
+    show_bag = 7, '显示背包'
 
 
 class Location(Enum):
@@ -89,7 +82,6 @@ class MiningProgress:
 
 class Game:
     def __init__(self, archive):
-        self.system = System()
         self.archive = archive
 
     def echo(self):
@@ -98,10 +90,13 @@ class Game:
                 Action.show_warehouse,
                 Action.buy_wood, Action.make_pickaxe, Action.go_mining,
             ]
-        else:
+        elif self.archive.location == Location.mine:
             cmds = [
+                Action.show_bag,
                 Action.mine, Action.go_camp
             ]
+        else:
+            return dict()
         cmds = [(idx, x) for idx, x in enumerate(cmds)]
         cmds_text = '\n'.join([f'{idx}: {x.values[1]}' for idx, x in cmds])
         logger.info(cmds_text)
@@ -110,18 +105,29 @@ class Game:
     def execute(self, action):
         if action == Action.show_warehouse:
             # todo: interactive ui for bag.
-            items = [f'{self.system.i18n[k]}: {v}個'
+            items = [f'{System.i18n[k.uid]}: {v}個'
                      for k, v in self.archive.warehouse.items()]
             items = '\n'.join(items)
             logger.info('-------------------')
             logger.info(items)
             logger.info('-------------------')
             return
+        if action == Action.show_bag:
+            items = [f'{System.i18n[k.uid]}: {v}個'
+                     for k, v in self.archive.bag.items()]
+            items = '\n'.join(items)
+            logger.info('-------------------')
+            logger.info(items)
+            logger.info('-------------------')
+            return
         if action == Action.go_mining:
-            # todo: carry something in the bag
+            # todo: bag should has limited space
+            self.archive.bag = self.archive.warehouse
+            self.archive.warehouse = dict()
             self.archive.location = Location.mine
         if action == Action.go_camp:
-            # todo: put items into warehouse.
+            self.archive.warehouse = self.archive.bag
+            self.archive.bag = dict()
             self.archive.location = Location.camp
         if action == Action.mine:
             # todo: use best axe to mine to next level
