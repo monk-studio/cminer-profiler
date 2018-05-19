@@ -5,7 +5,7 @@ from pathlib import Path
 from enum import Enum
 from copy import deepcopy
 from cminer.logger import logger
-from cminer.consts import TOOL_WOODEN_PICKAXE, COIN
+from cminer.consts import TOOL_WOODEN_PICKAXE, COIN, MATERIAL_WOOD
 from cminer.models import Tool, TOOL_TYPE_AXE
 from cminer.system import System
 
@@ -37,6 +37,9 @@ class ItemSet:
             self.data.items())
         axes = sorted(axes, key=lambda x: x[1].model.endurance, reverse=True)
         return list(axes)
+
+    def wood_num(self):
+        return self.grouped().get(MATERIAL_WOOD) or 0
 
     def clear(self):
         self.data = dict()

@@ -85,11 +85,13 @@ class Game:
             can_buy = self.v.warehouse.coin // wood_unit_price
             if not can_buy:
                 return logger.info('沒錢買木頭')
-            for _ in range(can_buy):
+            need_wood = 15 - min(self.v.warehouse.wood_num(), 15)
+            buy = min(can_buy, need_wood)
+            for _ in range(buy):
                 self.v.warehouse.add(System.item(MATERIAL_WOOD))
-            cost = can_buy * wood_unit_price
+            cost = buy * wood_unit_price
             self.v.warehouse.coin -= cost
-            logger.info(f'買了 {can_buy}個木頭, '
+            logger.info(f'買了 {buy}個木頭, '
                         f'花費 {cost}個金幣')
         if action == Action.compose:
             assert self.v.location == Location.camp
