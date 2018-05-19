@@ -110,4 +110,6 @@ class Game:
         self.v.save()
 
     def can_dig(self):
-        pass
+        if not self.v.location == Location.mine:
+            return False
+        return self.v.bag.axes()

@@ -1,6 +1,6 @@
 import click
 from .logger import logger
-from cminer.core import Game, Archive
+from cminer.core import Game, Archive, Action
 
 
 def _game_start(archive_name):
@@ -52,9 +52,33 @@ def resume(archive):
     _game_start(archive)
 
 
-@cli.command(help='Play the game automatically')
-def profile():
-    pass
+@cli.command(help='自動進行遊戲')
+@click.option('--target', prompt=True, help='目標層數', type=int)
+def profile(target):
+    from uuid import uuid4
+
+    archive_name = uuid4().hex[:6]
+    archive = Archive(archive_name)
+
+    game = Game(archive=archive)
+    game.click_num = 0
+
+    def _execute(action):
+        game.execute(action)
+        game.click_num += 1
+
+    while True:
+        _execute(Action.shopping)
+        _execute(Action.compose)
+        _execute(Action.go_mining)
+        while game.can_dig():
+            _execute(Action.mine)
+            if game.archive.mine_progress.level == target:
+                _execute(Action.go_camp)
+                print(game.archive.warehouse)
+                print(f'Clicked {game.click_num} times')
+                return
+        _execute(Action.go_camp)
 
 
 if __name__ == '__main__':
