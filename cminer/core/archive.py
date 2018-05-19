@@ -90,12 +90,12 @@ class MineProgress:
             awards_text = [f'{v}个 {k}'
                            for k, v in items.items()]
             awards_text = '\n'.join(['獲得: '] + awards_text)
-            awards_text += f'\n{coin} 枚金幣'
+            awards_text += f'\n{coin}枚 金幣'
             logger.info(awards_text)
             self.dig_deeper()
         else:
-            logger.info(f'{self.mine}剩餘血量'
-                        f' {self.mine.status.hp_now}/{self.mine.status.hp}')
+            logger.info(f'{self.mine}剩餘血量 '
+                        f'{self.mine.status.hp_now}/{self.mine.status.hp}')
         return dict(
             axe_broken=axe_broken,
             awards=dict(
