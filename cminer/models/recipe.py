@@ -10,4 +10,4 @@ class Recipe:
         self.priority = priority
 
     def __repr__(self):
-        return repr(self.outputs) + ': ' + repr(self.outputs)
+        return repr(self.inputs) + ': ' + repr(self.outputs)

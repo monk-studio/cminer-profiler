@@ -8,7 +8,7 @@ from .archive import Location, MineProgress
 
 class Action(MultiValueEnum):
     shopping = 1, '商店'
-    make_pickaxe = 2, '做稿子'
+    compose = 2, '合成'
     go_mining = 3, '去挖矿'
     mine = 4, '往下挖'
     go_camp = 5, '回到营地'
@@ -28,7 +28,7 @@ class Game:
         if self.v.location == Location.camp:
             cmds = [
                 Action.show_warehouse,
-                Action.shopping, Action.make_pickaxe, Action.go_mining,
+                Action.shopping, Action.compose, Action.go_mining,
             ]
         elif self.v.location == Location.mine:
             cmds = [
@@ -94,6 +94,19 @@ class Game:
             self.v.warehouse.coin -= cost
             logger.info(f'買了 {can_buy}個木頭, '
                         f'花費 {cost}個金幣')
+        if action == Action.compose:
+            assert self.v.location == Location.camp
+            # todo: choose with recipe to compose
+            # todo: recipe unlock
+            recipes = sorted(System.recipes,
+                             key=lambda x: x.priority,
+                             reverse=True)
+            for recipe in recipes:
+                while True:
+                    if self.v.warehouse.can_compose(recipe):
+                        self.v.warehouse.compose(recipe)
+                    else:
+                        break
         self.v.save()
 
     def can_dig(self):

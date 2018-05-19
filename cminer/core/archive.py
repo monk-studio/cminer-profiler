@@ -27,7 +27,6 @@ class ItemSet:
         del self.data[uid]
 
     def grouped(self):
-        # todo: item bundle limit
         return Counter([x.model.uid for x in self.data.values()])
 
     def axes(self):
@@ -39,6 +38,30 @@ class ItemSet:
 
     def clear(self):
         self.data = dict()
+
+    def can_compose(self, recipe):
+        distribution = self.grouped()
+        for key, amount in recipe.inputs:
+            if (distribution.get(key) or 0) < amount:
+                return False
+        return True
+
+    def compose(self, recipe):
+        to_remove = list()
+        for key, amount in recipe.inputs:
+            items = filter(lambda x: x[1].model.uid == key, self.data.items())
+            to_remove += [x[0] for x in items][:amount]
+        for i in to_remove:
+            self.remove(i)
+        for key, amount in recipe.outputs:
+            for _ in range(amount):
+                self.add(System.item(key))
+        input_text = ', '.join([f'{amount}個{System.i18n(key)}'
+                                for key, amount in recipe.inputs])
+        output_text = ', '.join([f'{amount}個{System.i18n(key)}'
+                                for key, amount in recipe.outputs])
+        echo = f'用 {input_text}. 合成了 {output_text}'
+        logger.info(echo)
 
 
 class Warehouse(ItemSet):
