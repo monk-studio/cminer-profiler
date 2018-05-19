@@ -98,10 +98,14 @@ class Game:
             recipes = sorted(System.recipes,
                              key=lambda x: x.priority,
                              reverse=True)
+            to_craft = self.v.bag.capacity
             for recipe in recipes:
                 while True:
                     if self.v.warehouse.can_compose(recipe):
                         self.v.warehouse.compose(recipe)
+                        to_craft -= 1
+                        if to_craft == 0:
+                            break
                     else:
                         break
         self.v.save()
