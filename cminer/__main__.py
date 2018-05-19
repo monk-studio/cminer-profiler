@@ -65,6 +65,7 @@ def profile(target, one_trip):
     archive = Archive(archive_name)
 
     game = Game(archive=archive)
+    game.debug = True
     game.click_num = 0
     rounds = 0
 
@@ -81,6 +82,10 @@ def profile(target, one_trip):
         rounds += 1
         _execute(Action.shopping)
         _execute(Action.compose)
+        if one_trip:
+            _summary()
+            if not click.prompt('繼續?', type=bool):
+                return
         _execute(Action.go_mining)
         while game.can_dig():
             _execute(Action.mine)
@@ -88,12 +93,6 @@ def profile(target, one_trip):
                 _execute(Action.go_camp)
                 return _summary()
         _execute(Action.go_camp)
-        if one_trip:
-            _summary()
-            if click.prompt('繼續?', type=bool):
-                continue
-            else:
-                return
 
 
 if __name__ == '__main__':

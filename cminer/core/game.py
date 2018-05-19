@@ -17,6 +17,8 @@ class Action(MultiValueEnum):
 
 
 class Game:
+    debug = False
+
     def __init__(self, archive):
         self.archive = archive
 
@@ -69,9 +71,9 @@ class Game:
                 logger.info('没镐子可以往下挖了')
             else:
                 axe_id, axe = axes[0]
-                logger.info('-------------------')
+                logger.debug('-------------------')
                 result = self.v.mine_progress.dig_by_axe(axe)
-                logger.info('-------------------')
+                logger.debug('-------------------')
                 if result['axe_broken']:
                     self.v.bag.remove(axe_id)
                 for item, amount in result['awards']['items'].items():
@@ -110,7 +112,8 @@ class Game:
                             break
                     else:
                         break
-        self.v.save()
+        if not self.debug:
+            self.v.save()
 
     def can_dig(self):
         if not self.v.location == Location.mine:
