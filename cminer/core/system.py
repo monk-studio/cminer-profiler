@@ -35,4 +35,4 @@ class System:
 
     @classmethod
     def item(cls, uid):
-        return cls.tools.get(uid) or cls.materials.get(uid) or uid
+        return cls.tools.get(uid) or cls.materials.get(uid)

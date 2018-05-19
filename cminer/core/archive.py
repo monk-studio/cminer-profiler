@@ -1,4 +1,5 @@
 import pickle
+from copy import deepcopy
 from itertools import groupby
 from uuid import uuid4
 from pathlib import Path
@@ -20,15 +21,15 @@ class ItemSet:
         self.data = data
 
     def add(self, item):
-        self.data[uuid4().hex] = item
+        self.data[uuid4().hex] = deepcopy(item)
 
     def remove(self, uid):
         del self.data[uid]
 
     def grouped(self):
         # todo: item bundle limit
-        # x: len(x)
-        return [(k, list(items)) for k, items in groupby(self.data.values())]
+        return [(k, list(items)) for k, items
+                in groupby(self.data.values(), lambda x: x.uid)]
 
     def axes(self):
         axes = filter(
@@ -47,7 +48,7 @@ class Warehouse(ItemSet):
         self.coin = 0
 
     def __repr__(self):
-        items = [f'{System.i18n(k.uid)}: {len(v)}個'
+        items = [f'{System.i18n(k)}: {len(v)}個'
                  for k, v in self.grouped()]
         items = ', '.join(items + [f'金幣: {self.coin}個'])
         return items

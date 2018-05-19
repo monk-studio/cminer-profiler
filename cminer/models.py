@@ -11,9 +11,6 @@ class Item:
     def __init__(self, uid):
         self.uid = uid
 
-    def __hash__(self):
-        return hash(self.uid)
-
 
 class Material(Item):
     def __init__(self, uid):
