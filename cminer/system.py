@@ -25,7 +25,7 @@ class System:
         now = 0
         for prob in mines.keys():
             if now < rand <= now + prob:
-                return mines[prob]
+                return mines[prob].new(level)
             now += prob
             continue
 
@@ -35,4 +35,6 @@ class System:
 
     @classmethod
     def item(cls, uid):
-        return cls.tools.get(uid) or cls.materials.get(uid)
+        rv = cls.tools.get(uid) or cls.materials.get(uid)
+        print(rv)
+        return rv.new()

@@ -4,7 +4,7 @@ import pygsheets
 
 from settings import SHEET_URL
 from .logger import logger
-from cminer.models import Mine, Recipe, Tool, Material
+from cminer.models import MineType, Recipe, ToolType, MaterialType
 from .consts import (
     SOURCE_MINES, SOURCE_RECIPES, SOURCE_TOOLS, SOURCE_MATERIALS, SOURCE_I18N
 )
@@ -40,8 +40,8 @@ def run():
         for (prob, group) in zip(DROP_PROB_FACTORS, drop_probs):
             items = _retrieve_items(name_id_map, group)
             item_drop_probs += [(x[0], x[1], prob) for x in items]
-        mine = Mine(uid, hardness, probs, item_drop_probs,
-                    hp_base_list[idx], coin_factor)
+        mine = MineType(uid, hardness, probs, item_drop_probs,
+                        hp_base_list[idx], coin_factor)
         mines.append(mine)
     mines = dict([(x.uid, x) for x in mines])
     _save(mines, SOURCE_MINES)
@@ -63,14 +63,14 @@ def run():
         hardness = int(row[4].value) if row[4].value else None
         endurance = int(row[5].value) if row[5].value else None
         base_damage = int(row[6].value) if row[6].value else None
-        tool = Tool(uid, type_, hardness, endurance, base_damage)
+        tool = ToolType(uid, type_, hardness, endurance, base_damage)
         tools.append(tool)
     tools = dict([(x.uid, x) for x in tools])
     _save(tools, SOURCE_TOOLS)
     logger.info(f'Synced {len(tools)} tools')
 
     material_data = sheet.worksheet_by_title('材料').range('A2:A27')
-    materials = [Material(name_id_map[x[0].value]) for x in material_data]
+    materials = [MaterialType(name_id_map[x[0].value]) for x in material_data]
     materials = dict([(x.uid, x) for x in materials])
     _save(materials, SOURCE_MATERIALS)
     logger.info(f'Synced {len(materials)} materials')

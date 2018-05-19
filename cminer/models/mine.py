@@ -1,66 +1,12 @@
 import math
 import random
-from collections import namedtuple
 from cminer.consts import COIN
 
 
-Food = namedtuple('Level', ['name', 'hp'])
-
-
-class Item:
-    def __init__(self, uid):
-        self.uid = uid
-
-
-class Material(Item):
-    def __init__(self, uid):
-        super().__init__(uid)
-
-
-class Tool(Item):
-    TYPE_AXE = 0
-    TYPE_BOMB = 1
-    TYPE_OTHERS = 9
-
-    def __init__(self, uid, type_, hardness, endurance, base_damage):
-        super().__init__(uid)
-        self.type = type_
-        self.hardness = hardness
-        self.endurance = endurance
-        self.base_damage = base_damage
-
-    def damage_on_hardness(self, hardness):
-        offset = hardness - self.hardness
-        rv = self.base_damage
-        if offset == 1:
-            rv *= 0.7
-        elif offset >= 2:
-            rv *= 0.4
-        elif offset == -1:
-            rv *= 1.2
-        elif offset <= -2:
-            rv *= 1.5
-        return min(int(rv), 1)
-
-    def __repr__(self):
-        return self.uid
-
-
-class Recipe:
-    def __init__(self, inputs, outputs):
-        # [('MATERIAL_STONE', 3), ('MATERIAL_WOOD', 1)]
-        self.inputs = inputs
-        # [('TOOL_STONE_PICKAXE', 1)]
-        self.outputs = outputs
-
-    def __repr__(self):
-        return repr(self.inputs) + ': ' + repr(self.outputs)
-
-
-class Mine(Item):
+class MineType:
     def __init__(self, uid, hardness, probs, item_drop_probs,
                  hp_base, coin_factor):
-        super().__init__(uid)
+        self.uid = uid
         self.hardness = hardness
         self.probs = probs
         # [(MATERIAL_IRON, 2, 0.4), ...], <= [(id, num, prob)]
@@ -98,5 +44,23 @@ class Mine(Item):
         rv[COIN] = coins
         return rv
 
+    def new(self, level):
+        return Mine(self, level)
+
+
+class MineStatus:
+    def __init__(self, hp):
+        self.hp = hp
+        self.hp_now = hp
+
+
+class Mine:
+    def __init__(self, model, level):
+        self.model = model
+        self.award = model.award_at_level(level)
+        hp = model.hp_at_level(level)
+        self.status = MineStatus(hp)
+
     def __repr__(self):
-        return self.uid
+        from cminer.system import System
+        return System.i18n(self.model.uid)
