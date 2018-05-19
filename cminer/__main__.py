@@ -54,7 +54,8 @@ def resume(archive):
 
 @cli.command(help='自動進行遊戲')
 @click.option('--target', prompt=True, help='目標層數', type=int)
-def profile(target):
+@click.option('--one-trip', default=False, help='只跑第一輪', is_flag=True)
+def profile(target, one_trip):
     from uuid import uuid4
 
     archive_name = uuid4().hex[:6]
@@ -68,6 +69,11 @@ def profile(target):
         game.execute(action)
         game.click_num += 1
 
+    def _summary():
+        click.echo(game.archive.warehouse)
+        click.echo(f'Rounds: {rounds}')
+        click.echo(f'Clicked: {game.click_num}')
+
     while True:
         rounds += 1
         _execute(Action.shopping)
@@ -77,11 +83,10 @@ def profile(target):
             _execute(Action.mine)
             if game.archive.mine_progress.level == target:
                 _execute(Action.go_camp)
-                click.echo(game.archive.warehouse)
-                click.echo(f'Rounds: {rounds}')
-                click.echo(f'Clicked: {game.click_num}')
-                return
+                return _summary()
         _execute(Action.go_camp)
+        if one_trip:
+            return _summary()
 
 
 if __name__ == '__main__':
