@@ -71,7 +71,7 @@ def run():
     _save(tools, SOURCE_TOOLS)
     logger.info(f'Synced {len(tools)} tools')
 
-    material_data = sheet.worksheet_by_title('材料').range('A2:A27')
+    material_data = sheet.worksheet_by_title('材料').range('A2:A28')
     materials = [MaterialType(name_id_map[x[0].value]) for x in material_data]
     materials = dict([(x.uid, x) for x in materials])
     _save(materials, SOURCE_MATERIALS)

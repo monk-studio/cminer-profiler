@@ -33,7 +33,7 @@ class ItemSet:
         axes = filter(
             lambda x: type(x[1]) == Tool and x[1].type == TOOL_TYPE_AXE,
             self.data.items())
-        axes = sorted(axes, key=lambda x: x[1].status.endurance)
+        axes = sorted(axes, key=lambda x: x[1].status.endurance, reverse=True)
         return list(axes)
 
     def clear(self):

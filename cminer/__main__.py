@@ -62,12 +62,14 @@ def profile(target):
 
     game = Game(archive=archive)
     game.click_num = 0
+    rounds = 0
 
     def _execute(action):
         game.execute(action)
         game.click_num += 1
 
     while True:
+        rounds += 1
         _execute(Action.shopping)
         _execute(Action.compose)
         _execute(Action.go_mining)
@@ -75,8 +77,9 @@ def profile(target):
             _execute(Action.mine)
             if game.archive.mine_progress.level == target:
                 _execute(Action.go_camp)
-                print(game.archive.warehouse)
-                print(f'Clicked {game.click_num} times')
+                click.echo(game.archive.warehouse)
+                click.echo(f'Rounds: {rounds}')
+                click.echo(f'Clicked: {game.click_num}')
                 return
         _execute(Action.go_camp)
 
