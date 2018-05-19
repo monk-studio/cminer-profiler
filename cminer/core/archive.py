@@ -16,6 +16,8 @@ class Location(Enum):
 
 
 class ItemSet:
+    capacity = 99999999
+
     """data: Dict(str, Item)"""
     def __init__(self, data):
         self.data = data
@@ -63,6 +65,17 @@ class ItemSet:
         echo = f'用 {input_text}. 合成了 {output_text}'
         logger.info(echo)
 
+    def transfer_axes_to(self, target):
+        uids = [x[0] for x in self.axes()[:target.capacity]]
+        for uid in uids:
+            target.add(self.data[uid])
+        for uid in uids:
+            self.remove(uid)
+
+    def dump_to(self, target):
+        [target.add(x) for x in self.data.values()]
+        self.clear()
+
 
 class Warehouse(ItemSet):
     def __init__(self, data):
@@ -75,11 +88,13 @@ class Warehouse(ItemSet):
         items = ', '.join(items + [f'金幣: {self.coin}枚'])
         return items
 
+    def dump_coin_to(self, target):
+        target.coin += self.coin
+        self.coin = 0
+
 
 class Bag(Warehouse):
-    def clear(self):
-        super().clear()
-        self.coin = 0
+    capacity = 15
 
 
 class MineProgress:

@@ -55,15 +55,12 @@ class Game:
             logger.info('-------------------')
             return
         if action == Action.go_mining:
-            # todo: bag should has limited space
-            self.v.bag.data = self.v.warehouse.data
-            self.v.warehouse.clear()
+            self.v.warehouse.transfer_axes_to(self.v.bag)
             self.v.mine_progress = MineProgress()
             self.v.location = Location.mine
         if action == Action.go_camp:
-            self.v.warehouse.data = self.v.bag.data
-            self.v.warehouse.coin += self.v.bag.coin
-            self.v.bag.clear()
+            self.v.bag.dump_coin_to(self.v.warehouse)
+            self.v.bag.dump_to(self.v.warehouse)
             self.v.location = Location.camp
         if action == Action.mine:
             assert self.v.location == Location.mine

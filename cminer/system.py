@@ -1,6 +1,5 @@
 import random
 import pickle
-from cminer.logger import logger
 from cminer.consts import (
     SOURCE_I18N, SOURCE_TOOLS, SOURCE_MATERIALS, SOURCE_RECIPES, SOURCE_MINES,
 )
