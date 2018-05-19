@@ -96,5 +96,5 @@ class Game:
                         f'花費 {cost}個金幣')
         self.v.save()
 
-    def shopping(self):
+    def can_dig(self):
         pass
