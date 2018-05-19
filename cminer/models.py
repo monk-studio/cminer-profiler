@@ -1,20 +1,32 @@
 import math
 import random
 from collections import namedtuple
-from .consts import COIN
+from cminer.consts import COIN
 
 
 Food = namedtuple('Level', ['name', 'hp'])
-Material = namedtuple('Material', ['sdf'])
 
 
-class Tool:
+class Item:
+    def __init__(self, uid):
+        self.uid = uid
+
+    def __hash__(self):
+        return hash(self.uid)
+
+
+class Material(Item):
+    def __init__(self, uid):
+        super().__init__(uid)
+
+
+class Tool(Item):
     TYPE_AXE = 0
     TYPE_BOMB = 1
     TYPE_OTHERS = 9
 
     def __init__(self, uid, type_, hardness, endurance, base_damage):
-        self.uid = uid
+        super().__init__(uid)
         self.type = type_
         self.hardness = hardness
         self.endurance = endurance
@@ -31,7 +43,7 @@ class Tool:
             rv *= 1.2
         elif offset <= -2:
             rv *= 1.5
-        return int(rv)
+        return min(int(rv), 1)
 
     def __repr__(self):
         return self.uid
@@ -48,10 +60,10 @@ class Recipe:
         return repr(self.inputs) + ': ' + repr(self.outputs)
 
 
-class Mine:
+class Mine(Item):
     def __init__(self, uid, hardness, probs, item_drop_probs,
                  hp_base, coin_factor):
-        self.uid = uid
+        super().__init__(uid)
         self.hardness = hardness
         self.probs = probs
         # [(MATERIAL_IRON, 2, 0.4), ...], <= [(id, num, prob)]
@@ -64,7 +76,8 @@ class Mine:
         return self.probs[min(pos, len(self.coin_factor) - 1)] or 0
 
     def hp_at_level(self, level):
-        return 1.05 ** (level / 10) * self.hp_base
+        rv = 1.05 ** (level / 10) * self.hp_base
+        return int(rv)
 
     def _coin_at_level(self, level):
         pos = math.floor(level / 100)

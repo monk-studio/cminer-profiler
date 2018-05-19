@@ -1,7 +1,7 @@
 import random
 import pickle
 from cminer.consts import (
-    SOURCE_I18N, SOURCE_TOOLS, SOURCE_RECIPES, SOURCE_MINES
+    SOURCE_I18N, SOURCE_TOOLS, SOURCE_MATERIALS, SOURCE_RECIPES, SOURCE_MINES,
 )
 
 
@@ -11,9 +11,10 @@ def _load(filename):
 
 
 class System:
-    i18n = _load(SOURCE_I18N)
+    _i18n = _load(SOURCE_I18N)
     mines = _load(SOURCE_MINES)
     tools = _load(SOURCE_TOOLS)
+    materials = _load(SOURCE_MATERIALS)
     recipes = _load(SOURCE_RECIPES)
 
     @classmethod
@@ -27,3 +28,11 @@ class System:
                 return mines[prob]
             now += prob
             continue
+
+    @classmethod
+    def i18n(cls, uid):
+        return cls._i18n.get(uid) or uid
+
+    @classmethod
+    def item(cls, uid):
+        return cls.tools.get(uid) or cls.materials.get(uid) or uid

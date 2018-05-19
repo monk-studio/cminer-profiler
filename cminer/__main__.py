@@ -8,14 +8,14 @@ def _game_start(archive_name):
     while True:
         cmds = game.echo()
         while True:
-            cmd_idx = click.prompt('Your next move')
+            cmd_idx = click.prompt('下一步')
             try:
                 cmd = cmds.get(int(cmd_idx))
             except ValueError:
-                click.echo('Command invalid')
+                click.echo('指令不正確')
                 continue
             if not cmd:
-                click.echo('Command not exist')
+                click.echo('指令不存在')
             else:
                 break
         game.execute(cmd)
@@ -32,22 +32,22 @@ def update():
     update.run()
 
 
-@cli.command(help='New game')
+@cli.command(help='新遊戲')
 def newgame():
     while True:
-        archive = click.prompt('Name of your archive')
+        archive = click.prompt('存檔的名字')
         if archive in Archive.list():
-            click.echo('Archive already exist')
+            click.echo('存檔已經存在')
             return
         break
     _game_start(archive)
 
 
-@cli.command(help='Resume game')
-@click.option('--archive', prompt=True, help='Name of your archive')
+@cli.command(help='繼續遊戲')
+@click.option('--archive', prompt=True, help='存檔的名字')
 def resume(archive):
     if archive not in Archive.list():
-        logger.info('Archive not exist')
+        logger.info('存檔不存在')
         return
     _game_start(archive)
 

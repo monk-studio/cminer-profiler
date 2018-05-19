@@ -4,9 +4,9 @@ import pygsheets
 
 from settings import SHEET_URL
 from .logger import logger
-from .models import Mine, Recipe, Tool
+from cminer.models import Mine, Recipe, Tool, Material
 from .consts import (
-    SOURCE_MINES, SOURCE_RECIPES, SOURCE_TOOLS, SOURCE_I18N
+    SOURCE_MINES, SOURCE_RECIPES, SOURCE_TOOLS, SOURCE_MATERIALS, SOURCE_I18N
 )
 
 DROP_PROB_FACTORS = [1, 0.8, 0.6, 0.4, 0.2, 0.05, 0.01]
@@ -68,6 +68,12 @@ def run():
     tools = dict([(x.uid, x) for x in tools])
     _save(tools, SOURCE_TOOLS)
     logger.info(f'Synced {len(tools)} tools')
+
+    material_data = sheet.worksheet_by_title('材料').range('A2:A27')
+    materials = [Material(name_id_map[x[0].value]) for x in material_data]
+    materials = dict([(x.uid, x) for x in materials])
+    _save(materials, SOURCE_MATERIALS)
+    logger.info(f'Synced {len(materials)} materials')
 
 
 def _retrieve_items(ids, text):

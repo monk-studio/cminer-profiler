@@ -1,9 +1,7 @@
 from aenum import MultiValueEnum
 
 from cminer.logger import logger
-from cminer.models import Tool
 from .archive import Location, MineProgress
-from .system import System
 
 
 class Action(MultiValueEnum):
@@ -38,51 +36,46 @@ class Game:
         else:
             return dict()
         cmds = [(idx, x) for idx, x in enumerate(cmds)]
-        cmds_text = '\n'.join([f'{idx}: {x.values[1]}' for idx, x in cmds])
+        cmds_text = ', '.join([f'{idx}: {x.values[1]}' for idx, x in cmds])
         logger.info(cmds_text)
         return dict(cmds)
 
     def execute(self, action):
         if action == Action.show_warehouse:
             # todo: interactive ui for bag.
-            items = [f'{System.i18n[k.uid]}: {v}個'
-                     for k, v in self.v.warehouse.items()]
-            items = '\n'.join(items)
             logger.info('-------------------')
-            logger.info(items)
+            logger.info(self.v.warehouse)
             logger.info('-------------------')
             return
         if action == Action.show_bag:
-            items = [f'{System.i18n[k.uid]}: {v}個'
-                     for k, v in self.v.bag.items()]
-            items = '\n'.join(items)
             logger.info('-------------------')
-            logger.info(items)
+            logger.info(self.v.bag)
             logger.info('-------------------')
             return
         if action == Action.go_mining:
             # todo: bag should has limited space
-            self.v.bag = self.v.warehouse
-            self.v.warehouse = dict()
+            self.v.bag.data = self.v.warehouse.data
+            self.v.warehouse.clear()
             self.v.mine_progress = MineProgress()
             self.v.location = Location.mine
         if action == Action.go_camp:
-            self.v.warehouse = self.v.bag
-            self.v.bag = dict()
+            self.v.warehouse.data = self.v.bag.data
+            self.v.warehouse.coin += self.v.bag.coin
+            self.v.bag.clear()
             self.v.location = Location.camp
         if action == Action.mine:
-            axes = filter(
-                lambda x: type(x) == Tool and x.type == Tool.TYPE_AXE,
-                self.v.bag.keys())
-            axes = list(axes)
+            axes = self.v.bag.axes()
             if not axes:
                 logger.info('没镐子可以往下挖了')
             else:
-                result = self.v.mine_progress.dig_by_axe(axes[0])
-                # todo result[axe_broken]
-                for item, amount in result['awards'].items():
-                    if self.v.bag.get(item):
-                        self.v.bag[item] += amount
-                    else:
-                        self.v.bag[item] = 1
+                axe_id, axe = axes[0]
+                logger.info('-------------------')
+                result = self.v.mine_progress.dig_by_axe(axe)
+                logger.info('-------------------')
+                if result['axe_broken']:
+                    self.v.bag.remove(axe_id)
+                for item, amount in result['awards']['items'].items():
+                    for _ in range(amount):
+                        self.v.bag.add(item)
+                self.v.bag.coin += result['awards']['coin']
         self.v.save()

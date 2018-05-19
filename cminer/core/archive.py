@@ -1,8 +1,11 @@
 import pickle
+from itertools import groupby
+from uuid import uuid4
 from pathlib import Path
 from enum import Enum
 from cminer.logger import logger
-from cminer.consts import TOOL_WOODEN_PICKAXE
+from cminer.consts import TOOL_WOODEN_PICKAXE, COIN
+from cminer.models import Tool
 from .system import System
 
 
@@ -11,34 +14,95 @@ class Location(Enum):
     mine = 2
 
 
+class ItemSet:
+    """data: Dict(str, Item)"""
+    def __init__(self, data):
+        self.data = data
+
+    def add(self, item):
+        self.data[uuid4().hex] = item
+
+    def remove(self, uid):
+        del self.data[uid]
+
+    def grouped(self):
+        # todo: item bundle limit
+        # x: len(x)
+        return [(k, list(items)) for k, items in groupby(self.data.values())]
+
+    def axes(self):
+        axes = filter(
+            lambda x: type(x[1]) == Tool and x[1].type == Tool.TYPE_AXE,
+            self.data.items())
+        axes = sorted(axes, key=lambda x: x[1].endurance)
+        return list(axes)
+
+    def clear(self):
+        self.data = dict()
+
+
+class Warehouse(ItemSet):
+    def __init__(self, data):
+        super().__init__(data)
+        self.coin = 0
+
+    def __repr__(self):
+        items = [f'{System.i18n(k.uid)}: {len(v)}個'
+                 for k, v in self.grouped()]
+        items = ', '.join(items + [f'金幣: {self.coin}個'])
+        return items
+
+
+class Bag(Warehouse):
+    def clear(self):
+        super().clear()
+        self.coin = 0
+
+
 class MineProgress:
     def __init__(self, level=1):
         self.level = level
         self.mine = None
         self.mine_hp = None
-        self.dig_deeper()
+        self.dig_deeper(is_initial=True)
 
     def dig_by_axe(self, axe):
         axe_broken = False
-        awards = dict()
+        coin = 0
+        items = dict()
 
         damage = axe.damage_on_hardness(self.mine.hardness)
         self.mine_hp -= damage
-        logger.info(f'用 {System.i18n[axe.uid]} 造成了 {damage} 点伤害')
+        logger.info(f'用 {System.i18n(axe.uid)} 造成了 {damage} 点伤害')
         axe.endurance -= 1
+
         if axe.endurance <= 0:
             axe_broken = True
-            logger.info(f'{System.i18n[axe.uid]} 坏了')
+            logger.info(f'{System.i18n(axe.uid)} 坏了')
+        else:
+            logger.info(f'{System.i18n(axe.uid)} 剩餘耐久 {axe.endurance}')
         if self.mine_hp <= 0:
-            awards = self.mine.award_at_level(level=self.level)
-            awards_text = [f'{System.i18n[k]}: {v}个'
-                           for k, v in awards.items()]
-            awards_text = '\n'.join(['获得:'] + awards_text)
+            _awards = self.mine.award_at_level(level=self.level)
+            for k, v in _awards.items():
+                if k == COIN:
+                    coin = v
+                else:
+                    items[System.item(k)] = v
+            awards_text = [f'{v}个{System.i18n(k.uid)}'
+                           for k, v in items.items()]
+            awards_text = '\n'.join(['獲得: '] + awards_text)
+            awards_text += f'\n{coin}金幣'
             logger.info(awards_text)
             self.dig_deeper()
+        else:
+            logger.info(f'{System.i18n(self.mine.uid)}剩餘血量'
+                        f' {self.mine_hp}/{self.mine.hp_base}')
         return dict(
             axe_broken=axe_broken,
-            awards=awards
+            awards=dict(
+                coin=coin,
+                items=items,
+            )
         )
 
     def dig_deeper(self, is_initial=False):
@@ -46,22 +110,23 @@ class MineProgress:
             self.level += 1
         self.mine = System.mine_at_level(self.level)
         self.mine_hp = self.mine.hp_at_level(self.level)
-        logger.info(f'到达{self.level}层, 发现 {System.i18n[self.mine.uid]}, '
+        logger.info(f'到达{self.level}层, 发现 {System.i18n(self.mine.uid)}, '
                     f'血量: {self.mine_hp}')
 
 
 class Archive:
     root = Path.home() / '.cminer/archives'
     location = None
-    warehouse = dict()
-    bag = dict()
     mine_progress = None
 
     def __init__(self, name):
         self.name = name
+        self.bag = Bag({})
+        self.warehouse = Warehouse({})
         if not self.load():
             self.location = Location.camp
-            self.warehouse = {System.tools[TOOL_WOODEN_PICKAXE]: 10}
+            for _ in range(10):
+                self.warehouse.add(System.item(TOOL_WOODEN_PICKAXE))
 
     @property
     def _path(self):
