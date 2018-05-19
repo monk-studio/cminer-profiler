@@ -1,11 +1,13 @@
 from aenum import MultiValueEnum
 
 from cminer.logger import logger
+from cminer.system import System
+from cminer.consts import MATERIAL_WOOD
 from .archive import Location, MineProgress
 
 
 class Action(MultiValueEnum):
-    buy_wood = 1, '买木头'
+    shopping = 1, '商店'
     make_pickaxe = 2, '做稿子'
     go_mining = 3, '去挖矿'
     mine = 4, '往下挖'
@@ -26,7 +28,7 @@ class Game:
         if self.v.location == Location.camp:
             cmds = [
                 Action.show_warehouse,
-                Action.buy_wood, Action.make_pickaxe, Action.go_mining,
+                Action.shopping, Action.make_pickaxe, Action.go_mining,
             ]
         elif self.v.location == Location.mine:
             cmds = [
@@ -64,6 +66,7 @@ class Game:
             self.v.bag.clear()
             self.v.location = Location.camp
         if action == Action.mine:
+            assert self.v.location == Location.mine
             axes = self.v.bag.axes()
             if not axes:
                 logger.info('没镐子可以往下挖了')
@@ -78,4 +81,20 @@ class Game:
                     for _ in range(amount):
                         self.v.bag.add(item)
                 self.v.bag.coin += result['awards']['coin']
+        if action == Action.shopping:
+            assert self.v.location == Location.camp
+            # todo: more goodies
+            wood_unit_price = 5
+            can_buy = self.v.warehouse.coin // wood_unit_price
+            if not can_buy:
+                return logger.info('沒錢買木頭')
+            for _ in range(can_buy):
+                self.v.warehouse.add(System.item(MATERIAL_WOOD))
+            cost = can_buy * wood_unit_price
+            self.v.warehouse.coin -= cost
+            logger.info(f'買了 {can_buy}個木頭, '
+                        f'花費 {cost}個金幣')
         self.v.save()
+
+    def shopping(self):
+        pass

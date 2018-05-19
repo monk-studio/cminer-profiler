@@ -79,7 +79,8 @@ class MineProgress:
             axe_broken = True
             logger.info(f'{axe} 坏了')
         else:
-            logger.info(f'{axe} 剩餘耐久 {axe.status.endurance}')
+            logger.info(f'{axe} 耐久 '
+                        f'{axe.status.endurance}/{axe.model.endurance}')
         if self.mine.status.hp_now <= 0:
             _awards = self.mine.award
             for k, v in _awards.items():

@@ -36,5 +36,4 @@ class System:
     @classmethod
     def item(cls, uid):
         rv = cls.tools.get(uid) or cls.materials.get(uid)
-        print(rv)
         return rv.new()
