@@ -47,7 +47,7 @@ def run():
     _save(mines, SOURCE_MINES)
     logger.info(f'Synced {len(mines)} mines')
 
-    recipe_data = sheet.worksheet_by_title('合成配方').range('A2:C200')
+    recipe_data = sheet.worksheet_by_title('合成配方').range('A2:C14')
     inouts = [(x[0].value, x[1].value, int(x[2].value))
               for x in recipe_data if x[0].value]
     recipes = [Recipe(_retrieve_items(name_id_map, x[0]),
