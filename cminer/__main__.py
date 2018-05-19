@@ -73,9 +73,9 @@ def profile(target, one_trip):
         game.click_num += 1
 
     def _summary():
-        click.echo(game.archive.warehouse)
-        click.echo(f'Rounds: {rounds}')
-        click.echo(f'Clicked: {game.click_num}')
+        click.echo(f'> {game.archive.warehouse}')
+        click.echo(f'> Rounds: {rounds}')
+        click.echo(f'> Clicked: {game.click_num}')
 
     while True:
         rounds += 1
