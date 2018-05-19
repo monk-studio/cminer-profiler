@@ -5,5 +5,6 @@
 
 ```shell
 $ pipenv install
-$ pipenv run python -m update
+$ echo "LOG_LEVEL = INFO" > .env
+$ pipenv run python -m cminer
 ```
