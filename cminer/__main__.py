@@ -58,6 +58,9 @@ def resume(archive):
 def profile(target, one_trip):
     from uuid import uuid4
 
+    if one_trip:
+        target = 9999999999
+
     archive_name = uuid4().hex[:6]
     archive = Archive(archive_name)
 
@@ -86,7 +89,11 @@ def profile(target, one_trip):
                 return _summary()
         _execute(Action.go_camp)
         if one_trip:
-            return _summary()
+            _summary()
+            if click.prompt('繼續?', type=bool):
+                continue
+            else:
+                return
 
 
 if __name__ == '__main__':
