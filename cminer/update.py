@@ -3,7 +3,7 @@ import pickle
 import pygsheets
 
 from settings import SHEET_URL
-from ._logger import logger
+from .logger import logger
 from .models import Mine, Recipe, Tool
 from .consts import (
     SOURCE_MINES, SOURCE_RECIPES, SOURCE_TOOLS, SOURCE_I18N

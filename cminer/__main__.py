@@ -1,6 +1,6 @@
 import click
-from ._logger import logger
-from .core import Game, Archive
+from .logger import logger
+from cminer.core import Game, Archive
 
 
 def _game_start(archive_name):
