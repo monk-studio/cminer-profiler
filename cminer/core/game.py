@@ -80,6 +80,8 @@ class Game:
                     for _ in range(amount):
                         self.v.bag.add(item)
                 self.v.bag.coin += result['awards']['coin']
+            if self.can_dig():
+                self.execute(Action.mine)
         if action == Action.shopping:
             assert self.v.location == Location.camp
             # todo: more goodies
@@ -112,8 +114,7 @@ class Game:
                             break
                     else:
                         break
-        if not self.debug:
-            self.v.save()
+        self.v.save()
 
     def can_dig(self):
         if not self.v.location == Location.mine:
