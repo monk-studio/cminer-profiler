@@ -1,13 +1,16 @@
-import re
 import pickle
+import re
+
 import pygsheets
 
+from cminer.models import MineType, ToolType, MaterialType
+from cminer.models import Recipe, Player
 from settings import SHEET_URL
-from .logger import logger
-from cminer.models import MineType, Recipe, ToolType, MaterialType
 from .consts import (
-    SOURCE_MINES, SOURCE_RECIPES, SOURCE_TOOLS, SOURCE_MATERIALS, SOURCE_I18N
+    SOURCE_MINES, SOURCE_RECIPES, SOURCE_TOOLS, SOURCE_MATERIALS, SOURCE_I18N,
+    SOURCE_PLAYER
 )
+from .logger import logger
 
 DROP_PROB_FACTORS = [1, 0.8, 0.6, 0.4, 0.2, 0.05, 0.01]
 
@@ -76,6 +79,13 @@ def run():
     materials = dict([(x.uid, x) for x in materials])
     _save(materials, SOURCE_MATERIALS)
     logger.info(f'Synced {len(materials)} materials')
+
+    # character
+    character_chart = sheet.worksheet_by_title('人物')
+    coins_to_upgrade = character_chart.range('B2:B100')
+    coins_to_upgrade = [int(x[0].value) for x in
+                        coins_to_upgrade if x[0].value]
+    _save(Player(coins_to_upgrade), SOURCE_PLAYER)
 
 
 def _retrieve_items(ids, text):

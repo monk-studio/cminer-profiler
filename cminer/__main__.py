@@ -1,9 +1,10 @@
 import click
 from .logger import logger
-from cminer.core import Game, Archive, Action
 
 
 def _game_start(archive_name):
+    from cminer.core import Archive, Game
+
     game = Game(archive=Archive(archive_name))
     while True:
         cmds = game.echo()
@@ -34,6 +35,8 @@ def update():
 
 @cli.command(help='新遊戲')
 def newgame():
+    from cminer.core import Archive
+
     while True:
         archive = click.prompt('存檔的名字')
         if archive in Archive.list():
@@ -46,6 +49,8 @@ def newgame():
 @cli.command(help='繼續遊戲')
 @click.option('--archive', prompt=True, help='存檔的名字')
 def resume(archive):
+    from cminer.core import Archive
+
     if archive not in Archive.list():
         logger.info('存檔不存在')
         return

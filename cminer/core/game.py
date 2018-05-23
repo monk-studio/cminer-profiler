@@ -17,8 +17,6 @@ class Action(MultiValueEnum):
 
 
 class Game:
-    debug = False
-
     def __init__(self, archive):
         self.archive = archive
 

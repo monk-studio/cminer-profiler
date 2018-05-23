@@ -1,7 +1,9 @@
-import random
 import pickle
+import random
+
 from cminer.consts import (
     SOURCE_I18N, SOURCE_TOOLS, SOURCE_MATERIALS, SOURCE_RECIPES, SOURCE_MINES,
+    SOURCE_PLAYER
 )
 
 
@@ -16,6 +18,7 @@ class System:
     tools = _load(SOURCE_TOOLS)
     materials = _load(SOURCE_MATERIALS)
     recipes = _load(SOURCE_RECIPES)
+    player = _load(SOURCE_PLAYER)
 
     @classmethod
     def mine_at_level(cls, level):
