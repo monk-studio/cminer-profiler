@@ -62,22 +62,25 @@ class Game:
             self.v.bag.dump_coin_to(self.v.warehouse)
             self.v.bag.dump_to(self.v.warehouse)
             self.v.location = Location.camp
+            self.v.player.recover_energy()
         if action == Action.mine:
             assert self.v.location == Location.mine
+            if not self.v.player.has_energy():
+                return logger.info('沒體力了')
             axes = self.v.bag.axes()
             if not axes:
-                logger.info('没镐子可以往下挖了')
-            else:
-                axe_id, axe = axes[0]
-                logger.debug('-------------------')
-                result = self.v.mine_progress.dig_by_axe(axe)
-                logger.debug('-------------------')
-                if result['axe_broken']:
-                    self.v.bag.remove(axe_id)
-                for item, amount in result['awards']['items'].items():
-                    for _ in range(amount):
-                        self.v.bag.add(item)
-                self.v.bag.coin += result['awards']['coin']
+                return logger.info('没镐子可以往下挖了')
+            axe_id, axe = axes[0]
+            logger.debug('-------------------')
+            self.v.player.hp_now -= 1
+            result = self.v.mine_progress.dig_by_axe(axe)
+            logger.debug('-------------------')
+            if result['axe_broken']:
+                self.v.bag.remove(axe_id)
+            for item, amount in result['awards']['items'].items():
+                for _ in range(amount):
+                    self.v.bag.add(item)
+            self.v.bag.coin += result['awards']['coin']
             if self.can_dig():
                 self.execute(Action.mine)
         if action == Action.shopping:

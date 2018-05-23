@@ -4,6 +4,7 @@ from pathlib import Path
 from cminer.consts import TOOL_WOODEN_PICKAXE
 from cminer.system import System
 from .bag import Bag
+from .player import Player
 from .itemset import ItemSet
 from .location import Location
 from .warehouse import Warehouse
@@ -19,9 +20,10 @@ class Archive:
         self.name = name
         self.bag = Bag({})
         self.warehouse = Warehouse({})
+        self.player = Player()
         if not self.load():
             self.location = Location.camp
-            for _ in range(10):
+            for _ in range(8):
                 item = System.item(TOOL_WOODEN_PICKAXE)
                 self.warehouse.add(item)
 
