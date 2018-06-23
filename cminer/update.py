@@ -3,12 +3,12 @@ import re
 
 import pygsheets
 
-from cminer.models import MineType, ToolType, MaterialType
+from cminer.models import MineType, ToolType, MaterialType, FoodType
 from cminer.models import Recipe, Player
 from settings import SHEET_URL
 from .consts import (
     SOURCE_MINES, SOURCE_RECIPES, SOURCE_TOOLS, SOURCE_MATERIALS, SOURCE_I18N,
-    SOURCE_PLAYER
+    SOURCE_PLAYER, SOURCE_FOOD
 )
 from .logger import logger
 
@@ -74,11 +74,29 @@ def run():
     _save(tools, SOURCE_TOOLS)
     logger.info(f'Synced {len(tools)} tools')
 
-    material_data = sheet.worksheet_by_title('材料').range('A2:A28')
-    materials = [MaterialType(name_id_map[x[0].value]) for x in material_data]
+    material_data = sheet.worksheet_by_title('材料').range('A2:B29')
+    materials = list()
+    for row in material_data:
+        uid = name_id_map[row[0].value]
+        price = int(row[1].value)
+        material = MaterialType(uid, price)
+        materials.append(material)
     materials = dict([(x.uid, x) for x in materials])
     _save(materials, SOURCE_MATERIALS)
     logger.info(f'Synced {len(materials)} materials')
+
+    food_data = sheet.worksheet_by_title('食物').range('A2:D13')
+    foods = list()
+    for row in food_data:
+        uid = name_id_map[row[0].value]
+        energy = int(row[1].value)
+        price = int(row[2].value)
+        priority = int(row[3].value)
+        food = FoodType(uid, energy, price, priority)
+        foods.append(food)
+    foods = dict([(x.uid, x) for x in foods])
+    _save(foods, SOURCE_FOOD)
+    logger.info(f'Synced {len(foods)} foods')
 
     # character
     character_chart = sheet.worksheet_by_title('人物')
