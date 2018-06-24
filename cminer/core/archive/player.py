@@ -30,5 +30,9 @@ class Player:
     def has_energy(self):
         return self.hp_now > 0
 
-    def recover_energy(self):
+    def rest(self):
         self.hp_now = self.hp
+
+    def recover_energy(self, energy):
+        self.hp_now += energy
+

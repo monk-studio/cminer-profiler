@@ -64,11 +64,16 @@ class Game:
             self.v.bag.dump_to(self.v.warehouse)
             self.v.bag.volume = self.v.bag.capacity
             self.v.location = Location.camp
-            self.v.player.recover_energy()
+            self.v.player.rest()
         if action == Action.mine:
             assert self.v.location == Location.mine
+            foods = self.v.bag.foods()
             if not self.v.player.has_energy():
-                return logger.info('沒體力了')
+                if not foods:
+                    return logger.info('沒體力了')
+                food_id, food = foods[0]
+                self.v.player.recover_energy(food.model.energy)
+                self.v.bag.remove(food_id)
             axes = self.v.bag.axes()
             if not axes:
                 return logger.info('没镐子可以往下挖了')
