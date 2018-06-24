@@ -1,7 +1,7 @@
 from copy import deepcopy
 from uuid import uuid4
 from collections import Counter
-from cminer.models import Tool, TOOL_TYPE_AXE
+from cminer.models import Tool, TOOL_TYPE_AXE, Food
 from cminer.consts import MATERIAL_WOOD
 from cminer.system import System
 from cminer.logger import logger
@@ -29,6 +29,12 @@ class ItemSet:
             self.data.items())
         axes = sorted(axes, key=lambda x: x[1].model.endurance, reverse=True)
         return list(axes)
+
+    def foods(self):
+        foods = filter(
+            lambda x: type(x[1]) == Food,
+            self.data.items())
+        return list(foods)
 
     def wood_num(self):
         return self.grouped().get(MATERIAL_WOOD) or 0
@@ -61,12 +67,23 @@ class ItemSet:
         logger.info(echo)
 
     def transfer_axes_to(self, target):
-        uids = [x[0] for x in self.axes()[:target.capacity]]
+        uids = [x[0] for x in self.axes()[:10]]
         for uid in uids:
             target.add(self.data[uid])
+            """tool volume 1"""
+            target.volume -= 1
         for uid in uids:
             self.remove(uid)
 
     def dump_to(self, target):
         [target.add(x) for x in self.data.values()]
         self.clear()
+
+    def transfer_foods_to(self, target):
+        """food volume 0.08"""
+        left_volume = int(target.volume / 0.08)
+        uids = [x[0] for x in self.foods()[:left_volume]]
+        for uid in uids:
+            target.add(self.data[uid])
+        for uid in uids:
+            self.remove(uid)

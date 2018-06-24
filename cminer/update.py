@@ -59,40 +59,43 @@ def run():
     _save(recipes, SOURCE_RECIPES)
     logger.info(f'Synced {len(recipes)} recipes')
 
-    tool_data = sheet.worksheet_by_title('道具').range('A2:H100')
+    tool_data = sheet.worksheet_by_title('道具').range('A2:I100')
     tool_data = [x for x in tool_data if x[0].value]
     tools = list()
     for row in tool_data:
         uid = name_id_map[row[0].value]
         type_ = int(row[1].value)
+        volume = float(row[8].value)
         hardness = int(row[4].value) if row[4].value else None
         endurance = int(row[5].value) if row[5].value else None
         base_damage = int(row[6].value) if row[6].value else None
-        tool = ToolType(uid, type_, hardness, endurance, base_damage)
+        tool = ToolType(uid, volume, type_, hardness, endurance, base_damage)
         tools.append(tool)
     tools = dict([(x.uid, x) for x in tools])
     _save(tools, SOURCE_TOOLS)
     logger.info(f'Synced {len(tools)} tools')
 
-    material_data = sheet.worksheet_by_title('材料').range('A2:B29')
+    material_data = sheet.worksheet_by_title('材料').range('A2:C29')
     materials = list()
     for row in material_data:
         uid = name_id_map[row[0].value]
+        volume = float(row[2].value)
         price = int(row[1].value)
-        material = MaterialType(uid, price)
+        material = MaterialType(uid, volume, price)
         materials.append(material)
     materials = dict([(x.uid, x) for x in materials])
     _save(materials, SOURCE_MATERIALS)
     logger.info(f'Synced {len(materials)} materials')
 
-    food_data = sheet.worksheet_by_title('食物').range('A2:D13')
+    food_data = sheet.worksheet_by_title('食物').range('A2:E13')
     foods = list()
     for row in food_data:
         uid = name_id_map[row[0].value]
+        volume = float(row[4].value)
         energy = int(row[1].value)
         price = int(row[2].value)
         priority = int(row[3].value)
-        food = FoodType(uid, energy, price, priority)
+        food = FoodType(uid, volume, energy, price, priority)
         foods.append(food)
     foods = dict([(x.uid, x) for x in foods])
     _save(foods, SOURCE_FOOD)

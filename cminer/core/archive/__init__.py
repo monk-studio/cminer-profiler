@@ -26,6 +26,9 @@ class Archive:
             for _ in range(8):
                 item = System.item(TOOL_WOODEN_PICKAXE)
                 self.warehouse.add(item)
+            for _ in range(24):
+                item = System.item('FOOD_NUTS')
+                self.warehouse.add(item)
 
     @property
     def _path(self):

@@ -1,6 +1,7 @@
 class ItemType:
-    def __init__(self, uid):
+    def __init__(self, uid, volume):
         self.uid = uid
+        self.volume = volume
 
     def new(self):
         raise NotImplemented

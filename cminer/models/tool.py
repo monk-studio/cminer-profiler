@@ -6,8 +6,8 @@ TOOL_TYPE_OTHERS = 9
 
 
 class ToolType(ItemType):
-    def __init__(self, uid, type_, hardness, endurance, base_damage):
-        super().__init__(uid)
+    def __init__(self, uid, volume, type_, hardness, endurance, base_damage):
+        super().__init__(uid, volume)
         self.type = type_
         self.hardness = hardness
         self.endurance = endurance

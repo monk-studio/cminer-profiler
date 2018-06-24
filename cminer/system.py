@@ -3,7 +3,7 @@ import random
 
 from cminer.consts import (
     SOURCE_I18N, SOURCE_TOOLS, SOURCE_MATERIALS, SOURCE_RECIPES, SOURCE_MINES,
-    SOURCE_PLAYER
+    SOURCE_PLAYER, SOURCE_FOOD
 )
 
 
@@ -19,6 +19,7 @@ class System:
     materials = _load(SOURCE_MATERIALS)
     recipes = _load(SOURCE_RECIPES)
     player = _load(SOURCE_PLAYER)
+    foods = _load(SOURCE_FOOD)
 
     @classmethod
     def mine_at_level(cls, level):
@@ -38,5 +39,5 @@ class System:
 
     @classmethod
     def item(cls, uid):
-        rv = cls.tools.get(uid) or cls.materials.get(uid)
+        rv = cls.tools.get(uid) or cls.materials.get(uid) or cls.foods.get(uid)
         return rv.new()
