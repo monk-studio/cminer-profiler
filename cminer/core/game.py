@@ -14,6 +14,7 @@ class Action(MultiValueEnum):
     go_camp = 5, '回到营地'
     show_warehouse = 6, '显示仓库'
     show_bag = 7, '显示背包'
+    buy = 8, '买东西'
 
 
 class Game:
@@ -35,6 +36,16 @@ class Game:
                 Action.show_bag,
                 Action.mine, Action.go_camp
             ]
+        elif self.v.location == Location.shop:
+            cmds = [
+                Action.go_camp, Action.buy, Action.show_warehouse
+            ]
+            goods = [x for x in System.foods]
+            goods_text = ','.join([f'{goods.index(x)}: {System.item(x)} (价格:{System.foods[x].price} '
+                                    f'能量:{System.foods[x].energy})' for x in goods])
+            logger.info(goods_text)
+            logger.info(f'12: 木头(价格:5)')
+            logger.info('-------------------')
         else:
             return dict()
         cmds = [(idx, x) for idx, x in enumerate(cmds)]
@@ -42,7 +53,7 @@ class Game:
         logger.info(cmds_text)
         return dict(cmds)
 
-    def execute(self, action):
+    def execute(self, action, payload):
         if action == Action.show_warehouse:
             # todo: interactive ui for bag.
             logger.info('-------------------')
@@ -89,22 +100,41 @@ class Game:
                     self.v.bag.add(item)
             self.v.bag.coin += result['awards']['coin']
             if self.can_dig():
-                self.execute(Action.mine)
+                self.execute(Action.mine, None)
         if action == Action.shopping:
-            assert self.v.location == Location.camp
+            self.v.location = Location.shop
+        if action == Action.buy:
             # todo: more goodies
             wood_unit_price = 5
-            can_buy = self.v.warehouse.coin // wood_unit_price
+            goods = [x for x in System.foods]
+            good = None
+            if payload is None:
+                logger.info(' 请选择商品')
+            if payload == 12:
+                good = 'MATERIAL_WOOD'
+                can_buy = self.v.warehouse.coin // wood_unit_price
+            elif payload >= 0 & payload < 12:
+                good = goods[payload]
+                can_buy = self.v.warehouse.coin // System.foods[good].price
+            else:
+                return logger.info('没有该物品')
+
             if not can_buy:
-                return logger.info('沒錢買木頭')
-            need_wood = 15 - min(self.v.warehouse.wood_num(), 15)
-            buy = min(can_buy, need_wood)
-            for _ in range(buy):
-                self.v.warehouse.add(System.item(MATERIAL_WOOD))
-            cost = buy * wood_unit_price
+                return logger.info(f'没钱买{System.item(good)}')
+
+            if good == 'MATERIAL_WOOD':
+                need_wood = 10 - min(self.v.warehouse.wood_num(), 10)
+                buy = min(can_buy, need_wood)
+                for _ in range(buy):
+                    self.v.warehouse.add(System.item(MATERIAL_WOOD))
+                cost = buy * wood_unit_price
+            else:
+                buy = min(can_buy, 12)
+                for _ in range(buy):
+                    self.v.warehouse.add(System.item(good))
+                cost = buy * System.foods[good].price
             self.v.warehouse.coin -= cost
-            logger.info(f'買了 {buy}個木頭, '
-                        f'花費 {cost}個金幣')
+            logger.info(f'买了 {buy}个{System.item(good)}, 花费了 {cost}个金币')
         if action == Action.compose:
             assert self.v.location == Location.camp
             # todo: choose with recipe to compose

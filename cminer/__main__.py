@@ -9,7 +9,11 @@ def _game_start(archive_name):
     while True:
         cmds = game.echo()
         while True:
-            cmd_idx = click.prompt('下一步')
+            i = click.prompt('下一步')
+            cmd_idx = i.split('|')[0]
+            payload = None
+            if len(i.split('|')) > 1:
+                payload = int(i.split('|')[1])
             try:
                 cmd = cmds.get(int(cmd_idx))
             except ValueError:
@@ -19,7 +23,7 @@ def _game_start(archive_name):
                 click.echo('指令不存在')
             else:
                 break
-        game.execute(cmd)
+        game.execute(cmd, payload)
 
 
 @click.group()
