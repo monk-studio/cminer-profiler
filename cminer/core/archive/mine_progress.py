@@ -1,3 +1,5 @@
+import random
+
 from cminer.consts import COIN
 from cminer.logger import logger
 from cminer.system import System
@@ -9,12 +11,15 @@ class MineProgress:
         self.mine = None
         self.dig_deeper(is_initial=True)
 
-    def dig_by_axe(self, axe):
+    def dig_by(self, axe, player):
         axe_broken = False
         coin = 0
         items = dict()
 
         damage = axe.damage_on_hardness(self.mine.model.hardness)
+        if random.random() < player.crit_prob:
+            logger.info('****** CRITICAL **')
+            damage *= player.crit_damage
         self.mine.status.hp_now -= damage
         logger.debug(f'用 {axe} 造成了 {damage} 点伤害')
         axe.status.endurance -= 1

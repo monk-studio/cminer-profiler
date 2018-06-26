@@ -46,8 +46,8 @@ class Game:
                 Action.go_camp, Action.buy, Action.show_warehouse
             ]
             goods = [x for x in System.foods]
-            goods_text = ','.join([f'{goods.index(x)}: {System.item(x)} (价格:{System.foods[x].price} '
-                                   f'能量:{System.foods[x].energy})   ' for x in goods])
+            goods_text = ',    '.join([f'{goods.index(x)}: {System.item(x)} (价格:{System.foods[x].price} '
+                                       f'能量:{System.foods[x].energy})' for x in goods])
             logger.info('-------------------')
             logger.info(goods_text)
             logger.info(f'12: 木头(价格:5)')
@@ -114,7 +114,7 @@ class Game:
             axe_id, axe = axes[0]
             logger.debug('-------------------')
             self.v.player.hp_now -= 1
-            result = self.v.mine_progress.dig_by_axe(axe)
+            result = self.v.mine_progress.dig_by(axe, self.v.player)
             logger.debug('-------------------')
             if result['axe_broken']:
                 self.v.bag.remove(axe_id)
@@ -164,7 +164,7 @@ class Game:
             recipes = sorted(System.recipes,
                              key=lambda x: x.priority,
                              reverse=True)
-            to_craft = self.v.bag.capacity
+            to_craft = 10
             for recipe in recipes:
                 while True:
                     if self.v.warehouse.can_compose(recipe):
@@ -176,7 +176,6 @@ class Game:
                         break
         if action == Action.character:
             self.v.location = Location.character
-
         if action == Action.character_up:
             assert self.v.location == Location.character
             if condition is None:
