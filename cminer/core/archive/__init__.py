@@ -12,7 +12,7 @@ from .mine_progress import MineProgress
 
 
 class Archive:
-    root = Path.home() / '.cminer/archives'
+    root = Path.home() / 'cminer/archives'
     location = None
     mine_progress = None
 

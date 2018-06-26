@@ -15,6 +15,11 @@ class Action(MultiValueEnum):
     show_warehouse = 6, '显示仓库'
     show_bag = 7, '显示背包'
     buy = 8, '买东西'
+    character = 9, '人物'
+    character_up = 10, '人物升级'
+
+
+Character = ['升级', '体力升级', '暴击升级', '暴击率升级', '幸运值升级']
 
 
 class Game:
@@ -29,7 +34,7 @@ class Game:
         if self.v.location == Location.camp:
             cmds = [
                 Action.show_warehouse,
-                Action.shopping, Action.compose, Action.go_mining,
+                Action.shopping, Action.compose, Action.go_mining, Action.character
             ]
         elif self.v.location == Location.mine:
             cmds = [
@@ -42,9 +47,27 @@ class Game:
             ]
             goods = [x for x in System.foods]
             goods_text = ','.join([f'{goods.index(x)}: {System.item(x)} (价格:{System.foods[x].price} '
-                                    f'能量:{System.foods[x].energy})' for x in goods])
+                                   f'能量:{System.foods[x].energy})   ' for x in goods])
+            logger.info('-------------------')
             logger.info(goods_text)
             logger.info(f'12: 木头(价格:5)')
+            logger.info('-------------------')
+        elif self.v.location == Location.character:
+            cmds = [
+                Action.go_camp, Action.character_up
+            ]
+            logger.info('-------------------')
+            logger.info('人物信息：')
+            logger.info(f'等级:{self.v.player.level}  '
+                        f'体力:{self.v.player.hp}  '
+                        f'暴击伤害:{self.v.player.crit_damage}  '
+                        f'暴击率:{self.v.player.crit_prob}  '
+                        f'幸运值:{self.v.player.lucky_prob}  '
+                        f'技能点:{self.v.player.points}')
+            logger.info('-------------------')
+            logger.info('可选升级：')
+            character_text = ', '.join([f'{Character.index(x)}: {x}' for x in Character])
+            logger.info(character_text)
             logger.info('-------------------')
         else:
             return dict()
@@ -53,7 +76,7 @@ class Game:
         logger.info(cmds_text)
         return dict(cmds)
 
-    def execute(self, action, payload):
+    def execute(self, action, condition):
         if action == Action.show_warehouse:
             # todo: interactive ui for bag.
             logger.info('-------------------')
@@ -78,8 +101,8 @@ class Game:
             self.v.player.rest()
         if action == Action.mine:
             assert self.v.location == Location.mine
-            foods = self.v.bag.foods()
             if not self.v.player.has_energy():
+                foods = self.v.bag.foods()
                 if not foods:
                     return logger.info('沒體力了')
                 food_id, food = foods[0]
@@ -99,8 +122,7 @@ class Game:
                 for _ in range(amount):
                     self.v.bag.add(item)
             self.v.bag.coin += result['awards']['coin']
-            if self.can_dig():
-                self.execute(Action.mine, None)
+            self.execute(Action.mine, None)
         if action == Action.shopping:
             self.v.location = Location.shop
         if action == Action.buy:
@@ -108,13 +130,13 @@ class Game:
             wood_unit_price = 5
             goods = [x for x in System.foods]
             good = None
-            if payload is None:
+            if condition is None:
                 logger.info(' 请选择商品')
-            if payload == 12:
+            if condition == 12:
                 good = 'MATERIAL_WOOD'
                 can_buy = self.v.warehouse.coin // wood_unit_price
-            elif payload >= 0 & payload < 12:
-                good = goods[payload]
+            elif condition >= 0 & condition < 12:
+                good = goods[condition]
                 can_buy = self.v.warehouse.coin // System.foods[good].price
             else:
                 return logger.info('没有该物品')
@@ -134,7 +156,7 @@ class Game:
                     self.v.warehouse.add(System.item(good))
                 cost = buy * System.foods[good].price
             self.v.warehouse.coin -= cost
-            logger.info(f'买了 {buy}个{System.item(good)}, 花费了 {cost}个金币')
+            logger.info(f'买了 {buy}个{System.item(good)}, 花费了 {cost}个金币, 还剩{self.v.warehouse.coin}个金币')
         if action == Action.compose:
             assert self.v.location == Location.camp
             # todo: choose with recipe to compose
@@ -152,9 +174,31 @@ class Game:
                             break
                     else:
                         break
-        self.v.save()
+        if action == Action.character:
+            self.v.location = Location.character
 
-    def can_dig(self):
-        if not self.v.location == Location.mine:
-            return False
-        return self.v.bag.axes()
+        if action == Action.character_up:
+            assert self.v.location == Location.character
+            if condition is None:
+                logger.info('请选择升级内容')
+            if condition == 0:
+                if not self.v.player.can_level_up(self.v.warehouse.coin):
+                    return logger.info('钱不够升级')
+                cost = self.v.player.level_up()
+                self.v.warehouse.coin -= cost
+                logger.info(f'升了一级，花费了{cost}金币，还剩{self.v.warehouse.coin}金币')
+            if condition > 0 & condition < 5:
+                if not self.v.player.can_skill_up():
+                    return logger.info('点数不够升级')
+                key = None
+                if condition == 1:
+                    key = 'hp'
+                if condition == 2:
+                    key = 'crit_damage'
+                if condition == 3:
+                    key = 'crit_prob'
+                if condition == 4:
+                    key = 'lucky_prob'
+                self.v.player.skill_up(key)
+                logger.info(f'{Character[condition]}了，还剩{self.v.player.points}个技能点')
+        self.v.save()

@@ -14,6 +14,7 @@ class Player:
     def level_up(self):
         self.points += System.player.points_per_level
         self.level += 1
+        return System.player.coins_to_upgrade[self.level - 1]
 
     def skill_up(self, key):
         assert self.points > 0
@@ -36,3 +37,8 @@ class Player:
     def recover_energy(self, energy):
         self.hp_now += energy
 
+    def can_level_up(self, coins):
+        return coins >= System.player.coins_to_upgrade[self.level - 1]
+
+    def can_skill_up(self):
+        return self.points > 0
