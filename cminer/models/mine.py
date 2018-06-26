@@ -28,10 +28,10 @@ class MineType:
         rv = factor * self.hp_at_level(level)
         return int(rv)
 
-    def award_at_level(self, level):
+    def award_at_level(self, level, lucky):
         rv = dict()
         for item in self.item_drop_probs:
-            if random.random() > item[2]:
+            if random.random() + lucky > item[2]:
                 continue
             if rv.get(item[0]):
                 rv[item[0]] += item[1]
@@ -39,7 +39,7 @@ class MineType:
                 rv[item[0]] = item[1]
         coins = self._coin_at_level(level=level)
         # 40% probability drop 10% more coin
-        if random.random() < 0.4:
+        if random.random() < 0.4 + lucky:
             coins = int(coins * 1.1)
         rv[COIN] = coins
         return rv
@@ -55,9 +55,9 @@ class MineStatus:
 
 
 class Mine:
-    def __init__(self, model, level):
+    def __init__(self, model, level, lucky):
         self.model = model
-        self.award = model.award_at_level(level)
+        self.award = model.award_at_level(level, lucky)
         hp = model.hp_at_level(level)
         self.status = MineStatus(hp)
 

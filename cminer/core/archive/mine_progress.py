@@ -9,7 +9,7 @@ class MineProgress:
     def __init__(self, level=1):
         self.level = level
         self.mine = None
-        self.dig_deeper(is_initial=True)
+        self.dig_deeper(0, is_initial=True)
 
     def dig_by(self, axe, player):
         axe_broken = False
@@ -42,7 +42,7 @@ class MineProgress:
             awards_text += [f'{coin}枚 金幣']
             awards_text = '獲得: ' + ', '.join(awards_text)
             logger.info(awards_text)
-            self.dig_deeper()
+            self.dig_deeper(player.lucky)
         else:
             logger.debug(f'{self.mine}剩餘血量 '
                          f'{self.mine.status.hp_now}/{self.mine.status.hp}')
@@ -54,10 +54,10 @@ class MineProgress:
             )
         )
 
-    def dig_deeper(self, is_initial=False):
+    def dig_deeper(self, lucky, is_initial=False):
         if not is_initial:
             self.level += 1
-        self.mine = System.mine_at_level(self.level)
+        self.mine = System.mine_at_level(self.level, lucky)
         logger.info(f'到达{self.level}层, 发现 {self.mine}, '
                     f'血量: {self.mine.status.hp}')
 
