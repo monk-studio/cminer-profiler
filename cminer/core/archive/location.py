@@ -6,3 +6,4 @@ class Location(Enum):
     mine = 2
     shop = 3
     character = 4
+    mine_menu = 5

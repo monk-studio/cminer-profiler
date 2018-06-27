@@ -42,6 +42,15 @@ class Game:
                 Action.show_bag,
                 Action.mine, Action.go_camp
             ]
+        elif self.v.location == Location.mine_menu:
+            cmds = [
+                Action.show_warehouse,
+                Action.mine_level, Action.go_camp
+            ]
+            cost_text = ',     '.join(f'{x}层: {System.utility.cost[x]}个金币' for x in System.utility.cost)
+            logger.info('-------------------')
+            logger.info(cost_text)
+            logger.info('-------------------')
         elif self.v.location == Location.shop:
             cmds = [
                 Action.go_camp, Action.buy, Action.show_warehouse
@@ -92,14 +101,30 @@ class Game:
         if action == Action.go_mining:
             self.v.warehouse.transfer_axes_to(self.v.bag)
             self.v.warehouse.transfer_foods_to(self.v.bag)
-            self.v.mine_progress = MineProgress()
-            self.v.location = Location.mine
+            self.v.location = Location.mine_menu
         if action == Action.go_camp:
             self.v.bag.dump_coin_to(self.v.warehouse)
             self.v.bag.dump_to(self.v.warehouse)
             self.v.bag.volume = self.v.bag.capacity
             self.v.location = Location.camp
             self.v.player.rest()
+        if action == Action.mine_level:
+            if condition is None:
+                self.v.mine_progress = MineProgress(1)
+                self.v.location = Location.mine
+                return
+            if condition not in System.utility.cost:
+                return logger.info('请选择开始层数')
+            if condition > self.v.player.highest_mine_level:
+                return logger.info('还未挖到该层')
+            if condition > self.v.player.unlock_level:
+                if System.utility.cost[condition] > self.v.warehouse.coin:
+                    return logger.info('钱不够解锁存档点')
+                self.v.warehouse.coin -= System.utility.cost[condition]
+                self.v.player.unlock_level = condition
+                logger.info(f'花了{System.utility.cost[condition]}金币，解锁了{condition}层的存档点')
+            self.v.mine_progress = MineProgress(condition)
+            self.v.location = Location.mine
         if action == Action.mine:
             assert self.v.location == Location.mine
             if not self.v.player.has_energy():
@@ -123,6 +148,7 @@ class Game:
                 for _ in range(amount):
                     self.v.bag.add(item)
             self.v.player.highest_mine_level = max(self.v.player.highest_mine_level, result['mine_level'])
+            self.v.player.unlock_level = max(self.v.player.unlock_level, self.v.player.highest_mine_level - 200)
             self.v.bag.coin += result['awards']['coin']
             self.execute(Action.mine, None)
         if action == Action.shopping:

@@ -6,7 +6,7 @@ from cminer.system import System
 
 
 class MineProgress:
-    def __init__(self, level=1):
+    def __init__(self, level):
         self.level = level
         self.mine = None
         self.dig_deeper(0, is_initial=True)

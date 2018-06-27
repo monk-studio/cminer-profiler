@@ -50,7 +50,7 @@ def run():
     _save(mines, SOURCE_MINES)
     logger.info(f'Synced {len(mines)} mines')
 
-    unlock_cost_data = sheet.worksheet_by_title('矿山解锁').range('A2:B28')
+    unlock_cost_data = sheet.worksheet_by_title('矿山解锁').range('A3:B28')
     mine_unlock_costs = dict()
     for row in unlock_cost_data:
         lv = int(row[0].value)
