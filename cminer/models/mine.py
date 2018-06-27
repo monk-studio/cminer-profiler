@@ -44,8 +44,8 @@ class MineType:
         rv[COIN] = coins
         return rv
 
-    def new(self, level):
-        return Mine(self, level)
+    def new(self, level, lucky):
+        return Mine(self, level, lucky)
 
 
 class MineStatus:

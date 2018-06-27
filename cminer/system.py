@@ -22,14 +22,14 @@ class System:
     foods = _load(SOURCE_FOOD)
 
     @classmethod
-    def mine_at_level(cls, level):
+    def mine_at_level(cls, level, lucky):
         mines = dict([(x.prob_at_level(level), x)
                       for x in cls.mines.values()])
         rand = random.random()
         now = 0
         for prob in mines.keys():
             if now < rand <= now + prob:
-                return mines[prob].new(level)
+                return mines[prob].new(level, lucky)
             now += prob
             continue
 

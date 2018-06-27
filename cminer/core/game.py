@@ -17,6 +17,7 @@ class Action(MultiValueEnum):
     buy = 8, '买东西'
     character = 9, '人物'
     character_up = 10, '人物升级'
+    mine_level = 11, '矿山等级'
 
 
 Character = ['升级', '体力升级', '暴击升级', '暴击率升级', '幸运值升级']
@@ -131,7 +132,7 @@ class Game:
             goods = [x for x in System.foods]
             good = None
             if condition is None:
-                logger.info(' 请选择商品')
+                return logger.info(' 请选择商品')
             if condition == 12:
                 good = 'MATERIAL_WOOD'
                 can_buy = self.v.warehouse.coin // wood_unit_price
@@ -179,7 +180,7 @@ class Game:
         if action == Action.character_up:
             assert self.v.location == Location.character
             if condition is None:
-                logger.info('请选择升级内容')
+                return logger.info('请选择升级内容')
             if condition == 0:
                 if not self.v.player.can_level_up(self.v.warehouse.coin):
                     return logger.info('钱不够升级')

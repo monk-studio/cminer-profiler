@@ -42,7 +42,7 @@ class MineProgress:
             awards_text += [f'{coin}枚 金幣']
             awards_text = '獲得: ' + ', '.join(awards_text)
             logger.info(awards_text)
-            self.dig_deeper(player.lucky)
+            self.dig_deeper(player.lucky_prob)
         else:
             logger.debug(f'{self.mine}剩餘血量 '
                          f'{self.mine.status.hp_now}/{self.mine.status.hp}')
