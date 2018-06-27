@@ -122,6 +122,7 @@ class Game:
             for item, amount in result['awards']['items'].items():
                 for _ in range(amount):
                     self.v.bag.add(item)
+            self.v.player.highest_mine_level = max(self.v.player.highest_mine_level, result['mine_level'])
             self.v.bag.coin += result['awards']['coin']
             self.execute(Action.mine, None)
         if action == Action.shopping:
@@ -165,7 +166,8 @@ class Game:
             recipes = sorted(System.recipes,
                              key=lambda x: x.priority,
                              reverse=True)
-            to_craft = 10
+            to_craft = 10 - len(self.v.warehouse.axes())
+            print(len(self.v.warehouse.axes()))
             for recipe in recipes:
                 while True:
                     if self.v.warehouse.can_compose(recipe):

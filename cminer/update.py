@@ -4,11 +4,11 @@ import re
 import pygsheets
 
 from cminer.models import MineType, ToolType, MaterialType, FoodType
-from cminer.models import Recipe, Player
+from cminer.models import Recipe, Player, Utility
 from settings import SHEET_URL
 from .consts import (
     SOURCE_MINES, SOURCE_RECIPES, SOURCE_TOOLS, SOURCE_MATERIALS, SOURCE_I18N,
-    SOURCE_PLAYER, SOURCE_FOOD
+    SOURCE_PLAYER, SOURCE_FOOD, SOURCE_UTILITY
 )
 from .logger import logger
 
@@ -49,6 +49,16 @@ def run():
     mines = dict([(x.uid, x) for x in mines])
     _save(mines, SOURCE_MINES)
     logger.info(f'Synced {len(mines)} mines')
+
+    unlock_cost_data = sheet.worksheet_by_title('矿山解锁').range('A2:B28')
+    mine_unlock_costs = dict()
+    for row in unlock_cost_data:
+        lv = int(row[0].value)
+        cost = int(row[1].value)
+        mine_unlock_costs[lv] = cost
+    utility = Utility(mine_unlock_costs)
+    _save(utility, SOURCE_UTILITY)
+    logger.info('Synced utilities')
 
     recipe_data = sheet.worksheet_by_title('合成配方').range('A2:C14')
     inouts = [(x[0].value, x[1].value, int(x[2].value))

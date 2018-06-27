@@ -10,6 +10,7 @@ class Player:
         self.crit_prob = System.player.crit_prob
         self.lucky_prob = System.player.lucky_prob
         self.hp_now = self.hp
+        self.highest_mine_level = 0
 
     def level_up(self):
         self.points += System.player.points_per_level

@@ -51,7 +51,8 @@ class MineProgress:
             awards=dict(
                 coin=coin,
                 items=items,
-            )
+            ),
+            mine_level=self.level
         )
 
     def dig_deeper(self, lucky, is_initial=False):
@@ -60,5 +61,5 @@ class MineProgress:
         self.mine = System.mine_at_level(self.level, lucky)
         logger.info(f'到达{self.level}层, 发现 {self.mine}, '
                     f'血量: {self.mine.status.hp}')
-
+        return self.level
 
