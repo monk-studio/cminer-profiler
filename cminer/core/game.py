@@ -44,24 +44,26 @@ class Game:
             ]
         elif self.v.location == Location.mine_menu:
             cmds = [
-                Action.show_warehouse,
+                Action.show_warehouse, Action.show_bag,
                 Action.mine_level, Action.go_camp
             ]
-            cost_text = ',     '.join(f'{x}层: {System.utility.cost[x]}个金币' for x in System.utility.cost)
+            unlock_text = f'已解锁到第{self.v.player.unlock_level} 层'
+            highest_text = f'已挖到第{self.v.player.highest_mine_level}层'
+            cost_text = ',\n'.join(f'{x}层: {System.utility.cost[x]}个金币' for x in System.utility.cost)
             logger.info('-------------------')
+            logger.info(unlock_text)
+            logger.info(highest_text)
             logger.info(cost_text)
-            logger.info('-------------------')
         elif self.v.location == Location.shop:
             cmds = [
                 Action.go_camp, Action.buy, Action.show_warehouse
             ]
             goods = [x for x in System.foods]
-            goods_text = ',    '.join([f'{goods.index(x)}: {System.item(x)} (价格:{System.foods[x].price} '
-                                       f'能量:{System.foods[x].energy})' for x in goods])
+            goods_text = ',\n'.join([f'{goods.index(x)}: {System.item(x)} (价格:{System.foods[x].price} '
+                                     f'能量:{System.foods[x].energy})' for x in goods])
             logger.info('-------------------')
             logger.info(goods_text)
             logger.info(f'12: 木头(价格:5)')
-            logger.info('-------------------')
         elif self.v.location == Location.character:
             cmds = [
                 Action.go_camp, Action.character_up
@@ -78,11 +80,11 @@ class Game:
             logger.info('可选升级：')
             character_text = ', '.join([f'{Character.index(x)}: {x}' for x in Character])
             logger.info(character_text)
-            logger.info('-------------------')
         else:
             return dict()
         cmds = [(idx, x) for idx, x in enumerate(cmds)]
         cmds_text = ', '.join([f'{idx}: {x.values[1]}' for idx, x in cmds])
+        logger.info('###########################')
         logger.info(cmds_text)
         return dict(cmds)
 
@@ -91,12 +93,10 @@ class Game:
             # todo: interactive ui for bag.
             logger.info('-------------------')
             logger.info(self.v.warehouse)
-            logger.info('-------------------')
             return
         if action == Action.show_bag:
             logger.info('-------------------')
             logger.info(self.v.bag)
-            logger.info('-------------------')
             return
         if action == Action.go_mining:
             self.v.warehouse.transfer_axes_to(self.v.bag)
@@ -193,7 +193,6 @@ class Game:
                              key=lambda x: x.priority,
                              reverse=True)
             to_craft = 10 - len(self.v.warehouse.axes())
-            print(len(self.v.warehouse.axes()))
             for recipe in recipes:
                 while True:
                     if self.v.warehouse.can_compose(recipe):
