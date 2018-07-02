@@ -18,6 +18,7 @@ class Action(MultiValueEnum):
     character = 9, '人物'
     character_up = 10, '人物升级'
     mine_level = 11, '矿山等级'
+    sell = 12, '卖东西'
 
 
 Character = ['升级', '体力升级', '暴击升级', '暴击率升级', '幸运值升级']
@@ -44,8 +45,8 @@ class Game:
             ]
         elif self.v.location == Location.mine_menu:
             cmds = [
-                Action.show_warehouse, Action.show_bag,
-                Action.mine_level, Action.go_camp
+                Action.show_warehouse,
+                Action.mine_level, Action.go_camp, Action.show_bag
             ]
             unlock_text = f'已解锁到第{self.v.player.unlock_level} 层'
             highest_text = f'已挖到第{self.v.player.highest_mine_level}层'
@@ -56,7 +57,9 @@ class Game:
             logger.info(cost_text)
         elif self.v.location == Location.shop:
             cmds = [
-                Action.go_camp, Action.buy, Action.show_warehouse
+                Action.go_camp,
+                Action.buy,  Action.sell,
+                Action.show_warehouse
             ]
             goods = [x for x in System.foods]
             goods_text = ',\n'.join([f'{goods.index(x)}: {System.item(x)} (价格:{System.foods[x].price} '
@@ -198,7 +201,7 @@ class Game:
                     if self.v.warehouse.can_compose(recipe):
                         self.v.warehouse.compose(recipe)
                         to_craft -= 1
-                        if to_craft == 0:
+                        if to_craft <= 0:
                             break
                     else:
                         break
@@ -220,12 +223,14 @@ class Game:
                 key = None
                 if condition == 1:
                     key = 'hp'
-                if condition == 2:
+                elif condition == 2:
                     key = 'crit_damage'
-                if condition == 3:
+                elif condition == 3:
                     key = 'crit_prob'
-                if condition == 4:
+                elif condition == 4:
                     key = 'lucky_prob'
+                else:
+                    return logger.info('指令错误')
                 self.v.player.skill_up(key)
                 logger.info(f'{Character[condition]}了，还剩{self.v.player.points}个技能点')
         self.v.save()
