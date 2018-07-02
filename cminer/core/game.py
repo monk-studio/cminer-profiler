@@ -66,7 +66,7 @@ class Game:
                                      f'能量:{System.foods[x].energy})' for x in goods])
             logger.info('-------------------')
             logger.info(goods_text)
-            logger.info(f'12: 木头(价格:5)')
+            logger.info(f'12: 木头(价格:4)')
         elif self.v.location == Location.character:
             cmds = [
                 Action.go_camp, Action.character_up
@@ -158,7 +158,7 @@ class Game:
             self.v.location = Location.shop
         if action == Action.buy:
             # todo: more goodies
-            wood_unit_price = 5
+            wood_unit_price = 4
             goods = [x for x in System.foods]
             good = None
             if condition is None:
