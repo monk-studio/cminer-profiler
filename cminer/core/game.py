@@ -50,7 +50,7 @@ class Game:
             ]
             unlock_text = f'已解锁到第{self.v.player.unlock_level} 层'
             highest_text = f'已挖到第{self.v.player.highest_mine_level}层'
-            cost_text = ',\n'.join(f'{x}层: {System.utility.cost[x]}个金币' for x in System.utility.cost)
+            cost_text = ',\n'.join(f'{x}层: {System.utility.level_cost[x]}个金币' for x in System.utility.level_cost)
             logger.info('-------------------')
             logger.info(unlock_text)
             logger.info(highest_text)
@@ -72,11 +72,13 @@ class Game:
                         f'暴击伤害:{self.v.player.crit_damage}  '
                         f'暴击率:{self.v.player.crit_prob}  '
                         f'幸运值:{self.v.player.lucky_prob}  '
-                        f'技能点:{self.v.player.points}')
+                        f'技能点:{self.v.player.points}  '
+                        f'背包：{self.v.bag.capacity}')
             logger.info('-------------------')
             logger.info('可选升级：')
             character_text = ', '.join([f'{Character.index(x)}: {x}' for x in Character])
             logger.info(character_text)
+            logger.info(f'5: 背包（{System.utility.bag_cost[self.v.bag.capacity]}个金币）')
         else:
             return dict()
         cmds = [(idx, x) for idx, x in enumerate(cmds)]
@@ -86,6 +88,7 @@ class Game:
         return dict(cmds)
 
     def execute(self, action, condition):
+        axe_amount = self.v.bag.capacity - 4
         if action == Action.show_warehouse:
             # todo: interactive ui for bag.
             logger.info('-------------------')
@@ -96,7 +99,7 @@ class Game:
             logger.info(self.v.bag)
             return
         if action == Action.go_mining:
-            self.v.warehouse.transfer_axes_to(self.v.bag)
+            self.v.warehouse.transfer_axes_to(self.v.bag, axe_amount)
             self.v.warehouse.transfer_foods_to(self.v.bag)
             self.v.location = Location.mine_menu
         if action == Action.go_camp:
@@ -115,7 +118,7 @@ class Game:
             if condition > self.v.player.highest_mine_level:
                 return logger.info('还未挖到该层')
             if condition > self.v.player.unlock_level:
-                if System.utility.cost[condition] > self.v.warehouse.coin:
+                if System.utility.level_cost[condition] > self.v.warehouse.coin:
                     return logger.info('钱不够解锁存档点')
                 self.v.warehouse.coin -= System.utility.cost[condition]
                 self.v.player.unlock_level = condition
@@ -175,7 +178,7 @@ class Game:
                 return logger.info(f'没钱买{System.item(good)}')
 
             if good == 'MATERIAL_WOOD':
-                need_wood = 10 - min(self.v.warehouse.wood_num(), 10)
+                need_wood = axe_amount - min(self.v.warehouse.wood_num()+len(self.v.warehouse.axes()), axe_amount)
                 buy = min(can_buy, need_wood)
                 for _ in range(buy):
                     self.v.warehouse.add(System.item(MATERIAL_WOOD))
@@ -225,11 +228,12 @@ class Game:
             recipes = sorted(System.recipes,
                              key=lambda x: x.priority,
                              reverse=True)
-            to_craft = 10 - len(self.v.warehouse.axes())
+            to_craft = axe_amount - len(self.v.warehouse.axes())
             for recipe in recipes:
                 while True:
                     if self.v.warehouse.can_compose(recipe):
                         self.v.warehouse.compose(recipe)
+                        self.v.player.compose_times += 1
                         to_craft -= 1
                         if to_craft <= 0:
                             break
@@ -247,7 +251,7 @@ class Game:
                 cost = self.v.player.level_up()
                 self.v.warehouse.coin -= cost
                 logger.info(f'升了一级，花费了{cost}金币，还剩{self.v.warehouse.coin}金币')
-            if condition > 0 & condition < 5:
+            if 0 < condition < 5:
                 if not self.v.player.can_skill_up():
                     return logger.info('点数不够升级')
                 key = None
@@ -263,4 +267,12 @@ class Game:
                     return logger.info('指令错误')
                 self.v.player.skill_up(key)
                 logger.info(f'{Character[condition]}了，还剩{self.v.player.points}个技能点')
+            if condition == 5:
+                cost = System.utility.bag_cost[self.v.bag.capacity]
+                if cost > self.v.warehouse.coin:
+                    return logger.info('钱不够解锁背包')
+                self.v.bag.capacity += 1
+                self.v.bag.volume = self.v.bag.capacity
+                self.v.warehouse.coin -= cost
+                logger.info(f'现背包容量为{self.v.bag.capacity}, 花了{cost}个金币, 还剩{self.v.warehouse.coin}金币')
         self.v.save()

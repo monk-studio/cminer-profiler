@@ -57,7 +57,6 @@ class ItemSet:
 
     def compose(self, recipe):
         to_remove = list()
-        print(recipe.inputs)
         for key, amount in recipe.inputs:
             items = filter(lambda x: x[1].model.uid == key, self.data.items())
             to_remove += [x[0] for x in items][:amount]
@@ -73,8 +72,8 @@ class ItemSet:
         echo = f'用 {input_text}. 合成了 {output_text}'
         logger.info(echo)
 
-    def transfer_axes_to(self, target):
-        uids = [x[0] for x in self.axes()[:10]]
+    def transfer_axes_to(self, target, amount):
+        uids = [x[0] for x in self.axes()[:amount]]
         for uid in uids:
             target.add(self.data[uid])
             """tool volume 1"""

@@ -51,12 +51,18 @@ def run():
     logger.info(f'Synced {len(mines)} mines')
 
     unlock_cost_data = sheet.worksheet_by_title('矿山解锁').range('A3:B28')
+    unlock_bag_data = sheet.worksheet_by_title('人物').range('K2:L17')
     mine_unlock_costs = dict()
+    bag_unlock_costs = dict()
     for row in unlock_cost_data:
         lv = int(row[0].value)
         cost = int(row[1].value)
         mine_unlock_costs[lv] = cost
-    utility = Utility(mine_unlock_costs)
+    for row in unlock_bag_data:
+        amount = int(row[0].value)
+        cost = int(row[1].value)
+        bag_unlock_costs[amount] = cost
+    utility = Utility(mine_unlock_costs, bag_unlock_costs)
     _save(utility, SOURCE_UTILITY)
     logger.info('Synced utilities')
 
