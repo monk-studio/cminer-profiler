@@ -61,12 +61,6 @@ class Game:
                 Action.buy,  Action.sell,
                 Action.show_warehouse
             ]
-            goods = [x for x in System.foods]
-            goods_text = ',\n'.join([f'{goods.index(x)}: {System.item(x)} (价格:{System.foods[x].price} '
-                                     f'能量:{System.foods[x].energy})' for x in goods])
-            logger.info('-------------------')
-            logger.info(goods_text)
-            logger.info(f'12: 木头(价格:4)')
         elif self.v.location == Location.character:
             cmds = [
                 Action.go_camp, Action.character_up
@@ -160,10 +154,15 @@ class Game:
             # todo: more goodies
             wood_unit_price = 4
             goods = [x for x in System.foods]
+            goods_text = ',\n'.join([f'{goods.index(x)}: {System.item(x)} (价格:{System.foods[x].price} '
+                                     f'能量:{System.foods[x].energy})' for x in goods])
+            logger.info('-------------------')
+            logger.info(goods_text)
+            logger.info(f'12: 木头(价格:4)')
             good = None
             if condition is None:
                 return logger.info(' 请选择商品')
-            if condition == 12:
+            elif condition == 12:
                 good = 'MATERIAL_WOOD'
                 can_buy = self.v.warehouse.coin // wood_unit_price
             elif condition >= 0 & condition < 12:
@@ -187,7 +186,38 @@ class Game:
                     self.v.warehouse.add(System.item(good))
                 cost = buy * System.foods[good].price
             self.v.warehouse.coin -= cost
+            logger.info('-------------------')
             logger.info(f'买了 {buy}个{System.item(good)}, 花费了 {cost}个金币, 还剩{self.v.warehouse.coin}个金币')
+        if action == Action.sell:
+            all_items = self.v.warehouse.items()
+            materials = list()
+            for x in all_items:
+                for y in self.v.warehouse.materials():
+                    if x[0] == y[1].model.uid:
+                        materials.append(x)
+                        break
+            items_text = ',\n'.join(f'{materials.index(x)}: {System.item(x[0])}, {x[1]}个'
+                                    f'(售价：{System.materials[x[0]].price}个金币）' for x in materials)
+            logger.info('-------------------')
+            logger.info(items_text)
+            good = None
+            amount = 0
+            if condition is None:
+                return logger.info('请选择要出售的商品')
+            elif 0 <= condition <= len(materials):
+                good = materials[condition][0]
+                amount = materials[condition][1]
+            else:
+                return logger.info('请选择正确的商品')
+            to_remove = list()
+            items = filter(lambda x: x[1].model.uid == good, self.v.warehouse.materials())
+            to_remove += [x[0] for x in items][:amount]
+            for i in to_remove:
+                self.v.warehouse.remove(i)
+            reward = System.materials[good].price * amount
+            self.v.warehouse.coin += reward
+            logger.info('-------------------')
+            logger.info(f'卖了{amount}个{System.item(good)}, 赚了{reward}个金币，现有{self.v.warehouse.coin}个金币')
         if action == Action.compose:
             assert self.v.location == Location.camp
             # todo: choose with recipe to compose

@@ -13,7 +13,8 @@ def _game_start(archive_name):
             cmd_idx = i.split('|')[0]
             payload = None
             if len(i.split('|')) > 1:
-                payload = int(i.split('|')[1])
+                if i.split('|')[1] != '':
+                    payload = int(i.split('|')[1])
             try:
                 cmd = cmds.get(int(cmd_idx))
             except ValueError:

@@ -1,7 +1,7 @@
 from copy import deepcopy
 from uuid import uuid4
 from collections import Counter
-from cminer.models import Tool, TOOL_TYPE_AXE, Food
+from cminer.models import Tool, TOOL_TYPE_AXE, Food, Material
 from cminer.consts import MATERIAL_WOOD
 from cminer.system import System
 from cminer.logger import logger
@@ -36,6 +36,12 @@ class ItemSet:
             self.data.items())
         return list(foods)
 
+    def materials(self):
+        materials = filter(
+            lambda x: type(x[1]) == Material,
+            self.data.items())
+        return list(materials)
+
     def wood_num(self):
         return self.grouped().get(MATERIAL_WOOD) or 0
 
@@ -51,6 +57,7 @@ class ItemSet:
 
     def compose(self, recipe):
         to_remove = list()
+        print(recipe.inputs)
         for key, amount in recipe.inputs:
             items = filter(lambda x: x[1].model.uid == key, self.data.items())
             to_remove += [x[0] for x in items][:amount]
