@@ -2,7 +2,7 @@ from aenum import MultiValueEnum
 
 from cminer.logger import logger
 from cminer.system import System
-from cminer.consts import MATERIAL_WOOD
+from cminer.consts import MATERIAL_WOOD, TOOL_WOODEN_PICKAXE
 from .archive import Location, MineProgress
 
 
@@ -161,16 +161,22 @@ class Game:
                                      f'能量:{System.foods[x].energy})' for x in goods])
             logger.info('-------------------')
             logger.info(goods_text)
-            logger.info(f'12: 木头(价格:4)')
+            logger.info('12: 木头(价格:4)')
+            logger.info('13: 木镐(免费)')
             good = None
             if condition is None:
                 return logger.info(' 请选择商品')
             elif condition == 12:
                 good = 'MATERIAL_WOOD'
                 can_buy = self.v.warehouse.coin // wood_unit_price
-            elif condition >= 0 & condition < 12:
+            elif 0 <= condition < 12:
                 good = goods[condition]
                 can_buy = self.v.warehouse.coin // System.foods[good].price
+            elif condition == 13:
+                need_axe = axe_amount - min(self.v.warehouse.wood_num()+len(self.v.warehouse.axes()), axe_amount)
+                for _ in range(need_axe):
+                    self.v.warehouse.add(System.item(TOOL_WOODEN_PICKAXE))
+                return logger.info(f'领取了{need_axe}个木镐')
             else:
                 return logger.info('没有该物品')
 
