@@ -113,16 +113,16 @@ class Game:
                 self.v.mine_progress = MineProgress(1)
                 self.v.location = Location.mine
                 return
-            if condition not in System.utility.cost:
+            if condition not in System.utility.level_cost:
                 return logger.info('请选择开始层数')
             if condition > self.v.player.highest_mine_level:
                 return logger.info('还未挖到该层')
             if condition > self.v.player.unlock_level:
                 if System.utility.level_cost[condition] > self.v.warehouse.coin:
                     return logger.info('钱不够解锁存档点')
-                self.v.warehouse.coin -= System.utility.cost[condition]
+                self.v.warehouse.coin -= System.utility.level_cost[condition]
                 self.v.player.unlock_level = condition
-                logger.info(f'花了{System.utility.cost[condition]}金币，解锁了{condition}层的存档点')
+                logger.info(f'花了{System.utility.level_cost[condition]}金币，解锁了{condition}层的存档点')
             self.v.mine_progress = MineProgress(condition)
             self.v.location = Location.mine
         if action == Action.mine:
@@ -275,4 +275,6 @@ class Game:
                 self.v.bag.volume = self.v.bag.capacity
                 self.v.warehouse.coin -= cost
                 logger.info(f'现背包容量为{self.v.bag.capacity}, 花了{cost}个金币, 还剩{self.v.warehouse.coin}金币')
+            if condition > 5:
+                logger.info('指令错误')
         self.v.save()

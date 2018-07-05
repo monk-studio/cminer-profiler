@@ -30,8 +30,7 @@ def run():
     mine_data = sheet.worksheet_by_title('矿山')
     mines_data2 = sheet.worksheet_by_title('矿山血量&金币掉落')
     hp_base_list = [int(x[0].value) for x in mines_data2.range('B2:B20')]
-    coin_factor = [float(x[0].value) for x in mines_data2.range('P27:AB27')]
-
+    coin_factor = [float(x.value) for x in mines_data2.range('P27:AB27')[0]]
     mines = list()
     for idx, row in enumerate(mine_data.range('A2:V20')):
         name = row[0].value

@@ -24,15 +24,12 @@ class System:
 
     @classmethod
     def mine_at_level(cls, level, lucky):
-        mines = dict([(x.prob_at_level(level), x)
-                      for x in cls.mines.values()])
-        rand = random.random()
-        now = 0
-        for prob in mines.keys():
-            if now < rand <= now + prob:
-                return mines[prob].new(level, lucky)
-            now += prob
-            continue
+        mines = list(cls.mines.values())
+        return random.choices(
+            mines,
+            [x.prob_at_level(level) for x in mines],
+            k=1,
+        )[0].new(level, lucky)
 
     @classmethod
     def i18n(cls, uid):

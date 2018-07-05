@@ -23,10 +23,10 @@ class Archive:
         self.player = Player()
         if not self.load():
             self.location = Location.camp
-            for _ in range(8):
+            for _ in range(5):
                 item = System.item(TOOL_WOODEN_PICKAXE)
                 self.warehouse.add(item)
-            for _ in range(36):
+            for _ in range(30):
                 item = System.item('FOOD_NUTS')
                 self.warehouse.add(item)
 
