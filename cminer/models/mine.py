@@ -19,7 +19,8 @@ class MineType:
         return self.probs[min(pos, len(self.coin_factor) - 1)] or 0
 
     def hp_at_level(self, level):
-        rv = 1.05 ** (level / 10) * self.hp_base
+        factor = random.uniform(0.9, 1.1)
+        rv = 1.05 ** (level / 10) * self.hp_base * factor
         return int(rv)
 
     def _coin_at_level(self, level):

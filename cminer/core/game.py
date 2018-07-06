@@ -73,7 +73,8 @@ class Game:
                         f'暴击率:{self.v.player.crit_prob}  '
                         f'幸运值:{self.v.player.lucky_prob}  '
                         f'技能点:{self.v.player.points}  '
-                        f'背包：{self.v.bag.capacity}')
+                        f'背包：{self.v.bag.capacity}   '
+                        f'锻造次数：{self.v.player.compose_times}')
             logger.info('-------------------')
             logger.info('可选升级：')
             character_text = ', '.join([f'{Character.index(x)}: {x}' for x in Character])
@@ -173,10 +174,9 @@ class Game:
                 good = goods[condition]
                 can_buy = self.v.warehouse.coin // System.foods[good].price
             elif condition == 13:
-                need_axe = axe_amount - min(self.v.warehouse.wood_num()+len(self.v.warehouse.axes()), axe_amount)
-                for _ in range(need_axe):
+                for _ in range(3):
                     self.v.warehouse.add(System.item(TOOL_WOODEN_PICKAXE))
-                return logger.info(f'领取了{need_axe}个木镐')
+                return logger.info('领取了3个木镐')
             else:
                 return logger.info('没有该物品')
 
