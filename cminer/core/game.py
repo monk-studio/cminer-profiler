@@ -184,8 +184,7 @@ class Game:
                 return logger.info(f'没钱买{System.item(good)}')
 
             if good == 'MATERIAL_WOOD':
-                need_wood = axe_amount - min(self.v.warehouse.wood_num()+len(self.v.warehouse.axes()), axe_amount)
-                buy = min(can_buy, need_wood)
+                buy = 5
                 for _ in range(buy):
                     self.v.warehouse.add(System.item(MATERIAL_WOOD))
                 cost = buy * wood_unit_price
@@ -231,20 +230,32 @@ class Game:
             assert self.v.location == Location.camp
             # todo: choose with recipe to compose
             # todo: recipe unlock
-            recipes = sorted(System.recipes,
-                             key=lambda x: x.priority,
-                             reverse=True)
-            to_craft = axe_amount - len(self.v.warehouse.axes())
-            for recipe in recipes:
-                while True:
-                    if self.v.warehouse.can_compose(recipe):
-                        self.v.warehouse.compose(recipe)
-                        self.v.player.compose_times += 1
-                        to_craft -= 1
-                        if to_craft <= 0:
+            if condition is None:
+                recipes = sorted(System.recipes,
+                                 key=lambda x: x.priority,
+                                 reverse=True)
+                recipes = filter(lambda x: x.priority > 0, recipes)
+                to_craft = axe_amount - len(self.v.warehouse.axes())
+                for recipe in recipes:
+                    while True:
+                        if self.v.warehouse.can_compose(recipe):
+                            self.v.warehouse.compose(recipe)
+                            self.v.player.compose_times += 1
+                            to_craft -= 1
+                            if to_craft <= 0:
+                                break
+                        else:
                             break
-                    else:
-                        break
+            elif condition == 1:
+                recipe_id = 'RECIPE_CHARCOAL'
+                recipe = None
+                for x in System.recipes:
+                    if x.id_ == recipe_id:
+                        recipe = x
+                if self.v.warehouse.can_compose(recipe):
+                    self.v.warehouse.compose(recipe)
+                    self.v.player.compose_times += 1
+
         if action == Action.character:
             self.v.location = Location.character
         if action == Action.character_up:

@@ -65,12 +65,12 @@ def run():
     _save(utility, SOURCE_UTILITY)
     logger.info('Synced utilities')
 
-    recipe_data = sheet.worksheet_by_title('合成配方').range('A2:C14')
-    inouts = [(x[0].value, x[1].value, int(x[2].value))
+    recipe_data = sheet.worksheet_by_title('合成配方').range('A2:D19')
+    inouts = [(x[0].value, x[1].value, int(x[2].value), x[3].value)
               for x in recipe_data if x[0].value]
     recipes = [Recipe(_retrieve_items(name_id_map, x[0]),
                       _retrieve_items(name_id_map, x[1]),
-                      x[2]) for x in inouts]
+                      x[2], x[3]) for x in inouts]
     _save(recipes, SOURCE_RECIPES)
     logger.info(f'Synced {len(recipes)} recipes')
 
