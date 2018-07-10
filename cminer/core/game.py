@@ -149,7 +149,7 @@ class Game:
                 for _ in range(amount):
                     self.v.bag.add(item)
             self.v.player.highest_mine_level = max(self.v.player.highest_mine_level, result['mine_level'])
-            self.v.player.unlock_level = max(self.v.player.unlock_level, self.v.player.highest_mine_level - 200)
+            self.v.player.unlock_level = max(self.v.player.unlock_level, self.v.player.highest_mine_level - 300)
             self.v.bag.coin += result['awards']['coin']
             self.execute(Action.mine, None)
         if action == Action.shopping:
@@ -184,7 +184,7 @@ class Game:
                 return logger.info(f'没钱买{System.item(good)}')
 
             if good == 'MATERIAL_WOOD':
-                buy = 5
+                buy = 12
                 for _ in range(buy):
                     self.v.warehouse.add(System.item(MATERIAL_WOOD))
                 cost = buy * wood_unit_price
@@ -238,23 +238,28 @@ class Game:
                 to_craft = axe_amount - len(self.v.warehouse.axes())
                 for recipe in recipes:
                     while True:
+                        if to_craft <= 0:
+                            break
                         if self.v.warehouse.can_compose(recipe):
                             self.v.warehouse.compose(recipe)
                             self.v.player.compose_times += 1
                             to_craft -= 1
-                            if to_craft <= 0:
-                                break
                         else:
                             break
             elif condition == 1:
                 recipe_id = 'RECIPE_CHARCOAL'
+                to_craft = 5
                 recipe = None
                 for x in System.recipes:
                     if x.id_ == recipe_id:
                         recipe = x
-                if self.v.warehouse.can_compose(recipe):
-                    self.v.warehouse.compose(recipe)
-                    self.v.player.compose_times += 1
+                for _ in range(to_craft):
+                    if self.v.warehouse.can_compose(recipe):
+                        self.v.warehouse.compose(recipe)
+                        self.v.player.compose_times += 1
+                        to_craft -= 1
+                    else:
+                        break
 
         if action == Action.character:
             self.v.location = Location.character

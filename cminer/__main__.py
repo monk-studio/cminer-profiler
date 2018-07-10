@@ -12,10 +12,10 @@ def _game_start(archive_name):
             i = click.prompt('下一步')
             cmd_idx = i.split('|')[0]
             payload = None
-            if len(i.split('|')) > 1:
-                if i.split('|')[1] != '':
-                    payload = int(i.split('|')[1])
             try:
+                if len(i.split('|')) > 1:
+                    if i.split('|')[1] != '':
+                        payload = int(i.split('|')[1])
                 cmd = cmds.get(int(cmd_idx))
             except ValueError:
                 click.echo('指令不正確')

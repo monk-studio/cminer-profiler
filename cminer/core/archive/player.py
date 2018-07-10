@@ -24,6 +24,7 @@ class Player:
         if key == 'hp':
             self.hp += System.player.hp_growth
         elif key == 'crit_damage':
+            print(System.player.crit_damage_growth)
             self.crit_damage += System.player.crit_damage_growth
         elif key == 'crit_prob':
             self.crit_prob += System.player.crit_prob_growth

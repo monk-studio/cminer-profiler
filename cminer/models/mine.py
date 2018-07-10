@@ -32,7 +32,7 @@ class MineType:
     def award_at_level(self, level, lucky):
         rv = dict()
         for item in self.item_drop_probs:
-            if random.random() + lucky > item[2]:
+            if random.random() > item[2] + lucky:
                 continue
             if rv.get(item[0]):
                 rv[item[0]] += item[1]
