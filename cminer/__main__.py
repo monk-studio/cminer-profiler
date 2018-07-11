@@ -30,7 +30,7 @@ def _game_start(archive_name):
 @click.group()
 def cli():
     import sys
-    sys.setrecursionlimit(10000)
+    sys.setrecursionlimit(100000)
 
 
 @cli.command()

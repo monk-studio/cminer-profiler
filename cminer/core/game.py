@@ -94,10 +94,34 @@ class Game:
             # todo: interactive ui for bag.
             logger.info('-------------------')
             logger.info(self.v.warehouse)
+            # total value
+            total_value = 0
+            all_items = self.v.warehouse.items()
+            materials = list()
+            for x in all_items:
+                for y in self.v.warehouse.materials():
+                    if x[0] == y[1].model.uid:
+                        materials.append(x)
+                        break
+            for material in materials:
+                total_value += System.materials[material[0]].price * material[1]
+            logger.info(f'材料价值：{total_value}个金币')
             return
         if action == Action.show_bag:
             logger.info('-------------------')
             logger.info(self.v.bag)
+            # total value
+            total_value = 0
+            all_items = self.v.bag.items()
+            materials = list()
+            for x in all_items:
+                for y in self.v.bag.materials():
+                    if x[0] == y[1].model.uid:
+                        materials.append(x)
+                        break
+            for material in materials:
+                total_value += System.materials[material[0]].price * material[1]
+            logger.info(f'材料价值：{total_value}个金币')
             return
         if action == Action.go_mining:
             self.v.warehouse.transfer_axes_to(self.v.bag, axe_amount)
