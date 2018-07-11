@@ -17,9 +17,9 @@ class ToolType(ItemType):
         offset = hardness - self.hardness
         rv = self.base_damage
         if offset == 1:
-            rv *= 0.7
+            rv *= 0.75
         elif offset >= 2:
-            rv *= 0.4
+            rv *= 0.45
         elif offset == -1:
             rv *= 1.2
         elif offset <= -2:

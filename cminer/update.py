@@ -102,7 +102,7 @@ def run():
     _save(materials, SOURCE_MATERIALS)
     logger.info(f'Synced {len(materials)} materials')
 
-    food_data = sheet.worksheet_by_title('食物').range('A2:E13')
+    food_data = sheet.worksheet_by_title('食物').range('A2:E16')
     foods = list()
     for row in food_data:
         uid = name_id_map[row[0].value]

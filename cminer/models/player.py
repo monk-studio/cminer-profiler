@@ -9,4 +9,4 @@ class Player:
         self.crit_prob = 0.05
         self.crit_prob_growth = 0.005
         self.lucky_prob = 0
-        self.lucky_prob_growth = 0.005
+        self.lucky_prob_growth = 0.002

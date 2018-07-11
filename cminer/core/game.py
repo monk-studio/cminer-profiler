@@ -162,18 +162,18 @@ class Game:
                                      f'能量:{System.foods[x].energy})' for x in goods])
             logger.info('-------------------')
             logger.info(goods_text)
-            logger.info('12: 木头(价格:4)')
-            logger.info('13: 木镐(免费)')
+            logger.info('15: 木头(价格:4)')
+            logger.info('16: 木镐(免费)')
             good = None
             if condition is None:
                 return logger.info(' 请选择商品')
-            elif condition == 12:
+            elif condition == 15:
                 good = 'MATERIAL_WOOD'
                 can_buy = self.v.warehouse.coin // wood_unit_price
-            elif 0 <= condition < 12:
+            elif 0 <= condition < 15:
                 good = goods[condition]
                 can_buy = self.v.warehouse.coin // System.foods[good].price
-            elif condition == 13:
+            elif condition == 16:
                 for _ in range(3):
                     self.v.warehouse.add(System.item(TOOL_WOODEN_PICKAXE))
                 return logger.info('领取了3个木镐')
@@ -184,7 +184,7 @@ class Game:
                 return logger.info(f'没钱买{System.item(good)}')
 
             if good == 'MATERIAL_WOOD':
-                buy = 12
+                buy = min(can_buy, 12)
                 for _ in range(buy):
                     self.v.warehouse.add(System.item(MATERIAL_WOOD))
                 cost = buy * wood_unit_price
@@ -224,6 +224,7 @@ class Game:
                 self.v.warehouse.remove(i)
             reward = System.materials[good].price * amount
             self.v.warehouse.coin += reward
+            self.v.player.cumulative_coin += reward
             logger.info('-------------------')
             logger.info(f'卖了{amount}个{System.item(good)}, 赚了{reward}个金币，现有{self.v.warehouse.coin}个金币')
         if action == Action.compose:
@@ -283,8 +284,12 @@ class Game:
                     key = 'crit_damage'
                 elif condition == 3:
                     key = 'crit_prob'
+                    if self.v.player.crit_prob >= 0.9:
+                        return logger.info('暴击率 max，无法升级')
                 elif condition == 4:
                     key = 'lucky_prob'
+                    if self.v.player.lucky_prob >= 0.25:
+                        return logger.info('幸运值 max，无法升级')
                 else:
                     return logger.info('指令错误')
                 self.v.player.skill_up(key)

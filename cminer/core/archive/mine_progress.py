@@ -26,7 +26,7 @@ class MineProgress:
 
         if axe.status.endurance <= 0:
             axe_broken = True
-            logger.debug(f'{axe} 坏了')
+            logger.info(f'{axe} 坏了')
         else:
             logger.debug(f'{axe} 耐久 '
                          f'{axe.status.endurance}/{axe.model.endurance}')
