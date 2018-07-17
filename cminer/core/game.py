@@ -236,7 +236,7 @@ class Game:
             amount = 0
             if condition is None:
                 return logger.info('请选择要出售的商品')
-            elif 0 <= condition <= len(materials):
+            elif 0 <= condition < len(materials):
                 good = materials[condition][0]
                 amount = materials[condition][1]
             else:
@@ -319,6 +319,8 @@ class Game:
                 self.v.player.skill_up(key)
                 logger.info(f'{Character[condition]}了，还剩{self.v.player.points}个技能点')
             if condition == 5:
+                if self.v.bag.capacity >= 50:
+                    return logger.info('背包已经最大')
                 cost = System.utility.bag_cost[self.v.bag.capacity]
                 if cost > self.v.warehouse.coin:
                     return logger.info('钱不够解锁背包')
