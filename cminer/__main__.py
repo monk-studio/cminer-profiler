@@ -52,6 +52,12 @@ def newgame():
     _game_start(archive)
 
 
+@cli.command(help='Create Game database')
+def create_db():
+    from .db import init_db
+    init_db()
+
+
 @cli.command(help='繼續遊戲')
 @click.option('--archive', prompt=True, help='存檔的名字')
 def resume(archive):

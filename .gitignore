@@ -199,3 +199,4 @@ venv.bak/
 client_secret.json
 sheets.googleapis.com-python.json
 .idea/
+store.sqlite
