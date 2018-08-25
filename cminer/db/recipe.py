@@ -4,7 +4,8 @@ from sqlalchemy import Integer, Float, String
 from .base import Base
 
 
-class Warehouse(Base):
-    __tablename__ = 'warehouse'
+class RecipeD(Base):
+    __tablename__ = 'recipe'
     id = Column(String, primary_key=True)
-    size = Column(Integer)
+    inputs = Column(String)
+    outputs = Column(String)

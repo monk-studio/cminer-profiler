@@ -3,6 +3,10 @@ from .consts import PLAYER_PRESETS, PLAYER_INIT
 from .player import Player, PlayerPresets
 from .i18n import I18n
 from .item import Item
+from .mine import Mine
+from .utilities import Utilities
+from .recipe import RecipeD
+from .warehouse import Warehouse
 import json
 
 
@@ -11,33 +15,33 @@ from cminer.system import System
 
 def init_db():
     Base.metadata.create_all()
-    session = session_maker()
-    with auto_commit(session):
-        session.add(PLAYER_PRESETS)
-        session.add(PLAYER_INIT)
-        for key, value in System._i18n.items():
-            item_ = I18n(
-                id=key,
-                name=value,
-            )
-            session.add(item_)
-        for x in System.tools:
-            print(x)
-            # data = {
-            #     "type": type_,
-            #     "hardness": hardness,
-            #     "endurance": endurance,
-            #     "base_damage": base_damage,
-            # }
-            # tool = Item(
-            #     id=uid, volume=volume_,
-            #     type="tool",
-            #     data=json.dumps(data),
-            #     buy_price=0,
-            #     sell_price=0,
-            # )
-            # session.add(tool)
-        session.commit()
+    # session = session_maker()
+    # with auto_commit(session):
+    #     session.add(PLAYER_PRESETS)
+    #     session.add(PLAYER_INIT)
+    #     for key, value in System._i18n.items():
+    #         item_ = I18n(
+    #             id=key,
+    #             name=value,
+    #         )
+    #         session.add(item_)
+    #     for x in System.tools:
+    #         print(x)
+    #         # data = {
+    #         #     "type": type_,
+    #         #     "hardness": hardness,
+    #         #     "endurance": endurance,
+    #         #     "base_damage": base_damage,
+    #         # }
+    #         # tool = Item(
+    #         #     id=uid, volume=volume_,
+    #         #     type="tool",
+    #         #     data=json.dumps(data),
+    #         #     buy_price=0,
+    #         #     sell_price=0,
+    #         # )
+    #         # session.add(tool)
+    #     session.commit()
 
 
 def player_presets():

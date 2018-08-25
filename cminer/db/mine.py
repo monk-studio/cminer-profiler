@@ -6,7 +6,7 @@ from .base import Base
 
 class Mine(Base):
     __tablename__ = 'mine_presets'
-    id = Column(String, primary_key=True, autoincrement=True)
+    id = Column(String, primary_key=True)
     hardness = Column(Integer)
     # 生成概率
     probs = Column(String)

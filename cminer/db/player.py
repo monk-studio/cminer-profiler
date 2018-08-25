@@ -19,7 +19,7 @@ class Player(Base):
     # 累計的數據
     highest_mine_level = Column(Integer)
     unlock_mine_level = Column(Integer)
-    cumulative_compose_times = Column(Integer)
+    cumulated_compose_times = Column(Integer)
     cumulated_coin = Column(Integer)
 
 

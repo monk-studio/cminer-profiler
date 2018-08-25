@@ -23,6 +23,6 @@ PLAYER_INIT = Player(
     status=json.dumps({}),
     highest_mine_level=0,
     unlock_mine_level=0,
-    cumulative_compose_times=0,
+    cumulated_compose_times=0,
     cumulated_coin=0,
 )
