@@ -1,6 +1,8 @@
 import pickle
 import re
 
+import json
+
 import pygsheets
 
 from cminer.models import MineType, ToolType, MaterialType, FoodType
@@ -11,11 +13,14 @@ from .consts import (
     SOURCE_PLAYER, SOURCE_FOOD, SOURCE_UTILITY
 )
 from .logger import logger
+from cminer.db import session_maker, Item
 
 DROP_PROB_FACTORS = [1, 0.8, 0.6, 0.4, 0.2, 0.05, 0.01]
 
 
 def run():
+    session = session_maker()
+
     gc = pygsheets.authorize()
     sheet = gc.open_by_url(SHEET_URL)
 
@@ -24,6 +29,7 @@ def run():
                         for x in id_data if x[0].value])
     i18n = dict([(x[0].value, x[1].value)
                  for x in id_data if x[0].value])
+
     _save(i18n, SOURCE_I18N)
     logger.info(f'Synced {len(i18n)} nouns')
 
@@ -86,6 +92,20 @@ def run():
         base_damage = int(row[6].value) if row[6].value else None
         tool = ToolType(uid, volume, type_, hardness, endurance, base_damage)
         tools.append(tool)
+        data_ = {
+            "type": type_,
+            "hardness": hardness,
+            "endurance": endurance,
+            "base_damage": base_damage,
+        }
+        tool_ = Item(
+            id=uid, volume=volume,
+            type="tool",
+            data=json.dumps(data_),
+            buy_price=0,
+            sell_price=0,
+        )
+        session.add(tool_)
     tools = dict([(x.uid, x) for x in tools])
     _save(tools, SOURCE_TOOLS)
     logger.info(f'Synced {len(tools)} tools')
@@ -98,6 +118,14 @@ def run():
         price = int(row[1].value)
         material = MaterialType(uid, volume, price)
         materials.append(material)
+        food_ = Item(
+            id=uid, volume=volume,
+            type="material",
+            data=json.dumps({}),
+            buy_price=0,
+            sell_price=price,
+        )
+        session.add(food_)
     materials = dict([(x.uid, x) for x in materials])
     _save(materials, SOURCE_MATERIALS)
     logger.info(f'Synced {len(materials)} materials')
@@ -112,6 +140,17 @@ def run():
         priority = int(row[3].value)
         food = FoodType(uid, volume, energy, price, priority)
         foods.append(food)
+        data_ = {
+            "energy": energy,
+        }
+        food_ = Item(
+            id=uid, volume=volume,
+            type="food",
+            data=json.dumps(data_),
+            buy_price=price,
+            sell_price=0,
+        )
+        session.add(food_)
     foods = dict([(x.uid, x) for x in foods])
     _save(foods, SOURCE_FOOD)
     logger.info(f'Synced {len(foods)} foods')
@@ -122,6 +161,8 @@ def run():
     coins_to_upgrade = [int(x[0].value) for x in
                         coins_to_upgrade if x[0].value]
     _save(Player(coins_to_upgrade), SOURCE_PLAYER)
+
+    session.commit()
 
 
 def _retrieve_items(ids, text):
