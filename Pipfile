@@ -8,6 +8,6 @@ click = "*"
 python-dotenv = "*"
 pygsheets = "*"
 aenum = "*"
-sqlalchemy = "*"
+SQLAlchemy = ">=1.3.0"
 
 [dev-packages]
